@@ -7,7 +7,7 @@ class LineWorld:
         self.num_states = 5  # Nombre total d'états
         self.num_actions = 2  # Nombre total d'actions possibles
         self.reward = 0  # Récompense actuelle
-        self.line_world = [""] * self.num_states
+        self.line_world = ["_"] * self.num_states
         self.line_world.insert(self.current_state-1,"X")
 
     def step(self, action):
