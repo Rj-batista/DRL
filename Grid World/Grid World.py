@@ -1,3 +1,5 @@
+
+
 class GridWorld:
     def __init__(self, taille, position_start, good_end_position, bad_end_position):
         self.current_state = position_start  # État actuel (ligne, colonne)
@@ -49,7 +51,6 @@ class GridWorld:
         elif action == 3:
             if self.current_state[1] == self.grid_size[1] - 1:
                 self.current_state[1] = 0
-                print(self.current_state)
                 self.reward = 0  # Pas de récompense pour avancer
                 self.generate_grid()
                 self.endgame()
@@ -69,15 +70,6 @@ class GridWorld:
             self.reward = 3
             self.done = True
 
-    # def update_grid(self):
-    #     new_grid = [["_", "_", "_", "_"],
-    #                 ["_", "_", "_", "_"],
-    #                 ["_", "_", "_", "_"],
-    #                 ["_", "_", "_", "_"]]
-    #     new_grid[self.current_state[0]][self.current_state[1]] = "X"
-    #     for i in new_grid:
-    #         print(i)
-
     def generate_grid(self):
         grid=[]
         for i in range(self.grid_size[0]):
@@ -86,7 +78,8 @@ class GridWorld:
                 grid[i].append("_")
         grid[self.current_state[0]][self.current_state[1]] = "X"
         for i in grid:
-            print(i)
+            print(*i, sep=' ')
+
 
 if __name__ == '__main__':
     # Il faut choisir un nombre entre 0 et 3
@@ -94,6 +87,9 @@ if __name__ == '__main__':
     # Si l'action est 1, déplacement vers le bas
     # Si l'action est 2, déplacement vers la gauche
     # Si l'action est 3, déplacement vers la droite
+
+
+
     world = GridWorld([5,6],[0,5],[4,0],[3,2]) #taille, position de départ, fin de jeu reward positive, fin de jeu reward négative
     print(                                       )
     state, reward, done = world.step(0)
