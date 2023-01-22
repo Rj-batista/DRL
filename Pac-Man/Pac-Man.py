@@ -1,9 +1,9 @@
-from board2 import board
+from board import board
 from copy import copy
 class PacMan():
     def __init__(self):
-        self.current_state = [9, 11]  # État actuel (ligne, colonne)
-        self.previous_state = [9, 11]
+        self.current_state = [15, 10]  # État actuel (ligne, colonne)
+        self.previous_state = [15, 10]
         #self.end_good_state = good_end_position  # État final (ligne, colonne)
         #self.end_bad_state = bad_end_position
         self.num_actions = 4  # Nombre total d'actions possibles (haut, bas, gauche, droite)
@@ -13,8 +13,6 @@ class PacMan():
         self.board = board()
         self.board_size = [len(self.board),len(self.board[0])]
         self.generate_map(None)
-
-
 
     def step(self, action):
         if action == 0 :
@@ -91,7 +89,7 @@ class PacMan():
                 self.score += 10
             elif self.move()[2] == collision_dict["wrap"]:
                 self.previous_state = copy(self.current_state)
-                self.current_state = [9, 12]
+                self.current_state = [10, 18]
             elif self.move()[2] == collision_dict["void"]:
                 self.previous_state = copy(self.current_state)
                 self.current_state[1] = self.current_state[1] - 1
@@ -106,19 +104,19 @@ class PacMan():
                 self.score += 10
             elif self.move()[3] == collision_dict["wrap"]:
                 self.previous_state = copy(self.current_state)
-                self.current_state = [9, 1]
+                self.current_state = [10, 1]
             elif self.move()[3] == collision_dict["void"]:
                 self.previous_state = copy(self.current_state)
                 self.current_state[1] = self.current_state[1] + 1
 
 
     def generate_map(self, action):
-        if self.current_state == [9, 2] and action == 3:
+        if self.current_state == [10, 2] and action == 3:
             self.board[self.previous_state[0]][self.previous_state[1]] = "["
             self.board[self.current_state[0]][self.current_state[1]] = "@"
             for i in self.board:
                 print(*i, sep=' ')
-        elif self.current_state == [9, 11] and action == 2:
+        elif self.current_state == [10, 17] and action == 2:
             self.board[self.previous_state[0]][self.previous_state[1]] = "]"
             self.board[self.current_state[0]][self.current_state[1]] = "@"
             for i in self.board:
