@@ -19,6 +19,9 @@ class Game():
         self.previous_state = [15, 11]
         self.inky_previous_object = None
         self.inky_state = [15, 13] #[8, 10]
+        self.killable_inky = False
+        self.inky_killed = False
+
         self.blinky_state = [10, 9]
         self.pinky_state = [10, 10]
         self.clyde_state = [10, 11]
@@ -69,71 +72,137 @@ class Game():
         return action_0, action_1, action_2, action_3
 
     def pacmac(self, action):
-        if action == 0:
-            if self.move(self.current_state[0], self.current_state[1])[0] == self.collision_dict["wall"]:
-                pass
-            elif self.move(self.current_state[0], self.current_state[1])[0] == self.collision_dict["point"]:
-                self.previous_state = copy(self.current_state)
-                self.current_state[0] = self.current_state[0] - 1
-                self.score += 10
-            elif self.move(self.current_state[0], self.current_state[1])[0] == self.collision_dict["fruit"]:
-                pass
-            elif self.move(self.current_state[0], self.current_state[1])[0] == self.collision_dict["void"]:
-                self.previous_state = copy(self.current_state)
-                self.current_state[0] = self.current_state[0] - 1
-            elif self.move(self.current_state[0], self.current_state[1])[0] == any(self.ghost_list) or self.score == 2480:
-                self.done = True
+        if self.score == 2500:
+            self.done = True
+        else:
+            if action == 0:
+                if self.move(self.current_state[0], self.current_state[1])[0] == self.collision_dict["wall"]:
+                    pass
+                elif self.move(self.current_state[0], self.current_state[1])[0] == self.collision_dict["point"]:
+                    self.previous_state = copy(self.current_state)
+                    self.current_state[0] = self.current_state[0] - 1
+                    self.score += 10
+                elif self.move(self.current_state[0], self.current_state[1])[0] == self.collision_dict["fruit"]:
+                    self.previous_state = copy(self.current_state)
+                    self.current_state[0] = self.current_state[0] - 1
+                    self.score += 100
+                    self.killable_inky = True
+                elif self.move(self.current_state[0], self.current_state[1])[0] == self.collision_dict["void"]:
+                    self.previous_state = copy(self.current_state)
+                    self.current_state[0] = self.current_state[0] - 1
+                elif self.move(self.current_state[0], self.current_state[1])[0] == any(self.ghost_list):
+                    if self.killable_inky == False:
+                        self.done = True
+                    elif self.killable_inky == True:
+                        self.inky_killed = True
+                        if self.inky_previous_object == ".":
+                            self.previous_state = copy(self.current_state)
+                            self.current_state[0] = self.current_state[0] - 1
+                            self.score += 10
+                        elif self.inky_previous_object == "o":
+                            self.previous_state = copy(self.current_state)
+                            self.current_state[0] = self.current_state[0] - 1
+                            self.score += 100
+                        elif self.inky_previous_object == " ":
+                            self.previous_state = copy(self.current_state)
+                            self.current_state[0] = self.current_state[0] - 1
 
 
-        if action == 1:
-            if self.move(self.current_state[0], self.current_state[1])[1] == self.collision_dict["wall"]:
-                pass
-            elif self.move(self.current_state[0], self.current_state[1])[1] == self.collision_dict["point"]:
-                self.previous_state = copy(self.current_state)
-                self.current_state[0] = self.current_state[0] + 1
-                self.score += 10
-            elif self.move(self.current_state[0], self.current_state[1])[1] == self.collision_dict["fruit"]:
-                pass
-            elif self.move(self.current_state[0], self.current_state[1])[1] == self.collision_dict["door"]:
-                pass
-            elif self.move(self.current_state[0], self.current_state[1])[1] == self.collision_dict["void"]:
-                self.previous_state = copy(self.current_state)
-                self.current_state[0] = self.current_state[0] + 1
-            elif self.move(self.current_state[0], self.current_state[1])[1] == any(self.ghost_list) or self.score == 2480:
-                self.done = True
+
+            if action == 1:
+                if self.move(self.current_state[0], self.current_state[1])[1] == self.collision_dict["wall"]:
+                    pass
+                elif self.move(self.current_state[0], self.current_state[1])[1] == self.collision_dict["point"]:
+                    self.previous_state = copy(self.current_state)
+                    self.current_state[0] = self.current_state[0] + 1
+                    self.score += 10
+                elif self.move(self.current_state[0], self.current_state[1])[1] == self.collision_dict["fruit"]:
+                    self.previous_state = copy(self.current_state)
+                    self.current_state[0] = self.current_state[0] + 1
+                    self.score += 100
+                    self.killable_inky = True
+                elif self.move(self.current_state[0], self.current_state[1])[1] == self.collision_dict["door"]:
+                    pass
+                elif self.move(self.current_state[0], self.current_state[1])[1] == self.collision_dict["void"]:
+                    self.previous_state = copy(self.current_state)
+                    self.current_state[0] = self.current_state[0] + 1
+                elif self.move(self.current_state[0], self.current_state[1])[1] == any(self.ghost_list):
+                    if self.killable_inky == False:
+                        self.done = True
+                    elif self.killable_inky == True:
+                        self.inky_killed = True
+                        if self.inky_previous_object == ".":
+                            self.previous_state = copy(self.current_state)
+                            self.current_state[0] = self.current_state[0] + 1
+                            self.score += 10
+                        elif self.inky_previous_object == "o":
+                            self.previous_state = copy(self.current_state)
+                            self.current_state[0] = self.current_state[0] + 1
+                            self.score += 100
+                        elif self.inky_previous_object == " ":
+                            self.previous_state = copy(self.current_state)
+                            self.current_state[0] = self.current_state[0] + 1
 
 
-        if action == 2:
-            if self.move(self.current_state[0], self.current_state[1])[2] == self.collision_dict["wall"]:
-                pass
-            elif self.move(self.current_state[0], self.current_state[1])[2] == self.collision_dict["point"]:
-                self.previous_state = copy(self.current_state)
-                self.current_state[1] = self.current_state[1] - 1
-                self.score += 10
-            elif self.move(self.current_state[0], self.current_state[1])[2] == self.collision_dict["wrap"]:
-                self.previous_state = copy(self.current_state)
-                self.current_state = [10, 19]
-            elif self.move(self.current_state[0], self.current_state[1])[2] == self.collision_dict["void"]:
-                self.previous_state = copy(self.current_state)
-                self.current_state[1] = self.current_state[1] - 1
-            elif self.move(self.current_state[0], self.current_state[1])[2] == any(self.ghost_list) or self.score == 2480:
-                self.done = True
+            if action == 2:
+                if self.move(self.current_state[0], self.current_state[1])[2] == self.collision_dict["wall"]:
+                    pass
+                elif self.move(self.current_state[0], self.current_state[1])[2] == self.collision_dict["point"]:
+                    self.previous_state = copy(self.current_state)
+                    self.current_state[1] = self.current_state[1] - 1
+                    self.score += 10
+                elif self.move(self.current_state[0], self.current_state[1])[2] == self.collision_dict["wrap"]:
+                    self.previous_state = copy(self.current_state)
+                    self.current_state = [10, 19]
+                elif self.move(self.current_state[0], self.current_state[1])[2] == self.collision_dict["void"]:
+                    self.previous_state = copy(self.current_state)
+                    self.current_state[1] = self.current_state[1] - 1
+                elif self.move(self.current_state[0], self.current_state[1])[2] == any(self.ghost_list):
+                    if self.killable_inky == False:
+                        self.done = True
+                    elif self.killable_inky == True:
+                        self.inky_killed = True
+                        if self.inky_previous_object == ".":
+                            self.previous_state = copy(self.current_state)
+                            self.current_state[1] = self.current_state[1] - 1
+                            self.score += 10
+                        elif self.inky_previous_object == "o":
+                            self.previous_state = copy(self.current_state)
+                            self.current_state[1] = self.current_state[1] - 1
+                            self.score += 100
+                        elif self.inky_previous_object == " ":
+                            self.previous_state = copy(self.current_state)
+                            self.current_state[1] = self.current_state[1] - 1
 
-        if action == 3:
-            if self.move(self.current_state[0], self.current_state[1])[3] == self.collision_dict["wall"]:
-                pass
-            elif self.move(self.current_state[0], self.current_state[1])[3] == self.collision_dict["point"]:
-                self.previous_state = copy(self.current_state)
-                self.current_state[1] = self.current_state[1] + 1
-                self.score += 10
-            elif self.move(self.current_state[0], self.current_state[1])[3] == self.collision_dict["wrap"]:
-                self.previous_state = copy(self.current_state)
-                self.current_state = [10, 1]
-            elif self.move(self.current_state[0], self.current_state[1])[3] == self.collision_dict["void"]:
-                self.previous_state = copy(self.current_state)
-                self.current_state[1] = self.current_state[1] + 1
-            elif self.move(self.current_state[0], self.current_state[1])[3] == any(self.ghost_list) or self.score == 2480:
-                self.done = True
+            if action == 3:
+                if self.move(self.current_state[0], self.current_state[1])[3] == self.collision_dict["wall"]:
+                    pass
+                elif self.move(self.current_state[0], self.current_state[1])[3] == self.collision_dict["point"]:
+                    self.previous_state = copy(self.current_state)
+                    self.current_state[1] = self.current_state[1] + 1
+                    self.score += 10
+                elif self.move(self.current_state[0], self.current_state[1])[3] == self.collision_dict["wrap"]:
+                    self.previous_state = copy(self.current_state)
+                    self.current_state = [10, 1]
+                elif self.move(self.current_state[0], self.current_state[1])[3] == self.collision_dict["void"]:
+                    self.previous_state = copy(self.current_state)
+                    self.current_state[1] = self.current_state[1] + 1
+                elif self.move(self.current_state[0], self.current_state[1])[3] == any(self.ghost_list):
+                    if self.killable_inky == False:
+                        self.done = True
+                    elif self.killable_inky == True:
+                        self.inky_killed = True
+                        if self.inky_previous_object == ".":
+                            self.previous_state = copy(self.current_state)
+                            self.current_state[1] = self.current_state[1] + 1
+                            self.score += 10
+                        elif self.inky_previous_object == "o":
+                            self.previous_state = copy(self.current_state)
+                            self.current_state[1] = self.current_state[1] + 1
+                            self.score += 100
+                        elif self.inky_previous_object == " ":
+                            self.previous_state = copy(self.current_state)
+                            self.current_state[1] = self.current_state[1] + 1
 
     def update_pacman_position(self, action):
         if self.current_state == [10, 2] and action == 3:
@@ -158,83 +227,152 @@ class Game():
             self.board_ghost_check[self.current_state[0]][self.current_state[1]] = "@"
 
     def inky(self):
-        self.direction_inky = random.randint(0,3)
-        self.inky_moving = True
+        if self.inky_killed == False:
 
-        if self.direction_inky == 0:
-            if self.move(self.inky_state[0], self.inky_state[1])[0] == self.collision_dict["wall"]:
-                self.inky_moving = False
-                pass
-            elif self.move(self.inky_state[0], self.inky_state[1])[0] == self.collision_dict["pacman"]:
-                self.done = True
-            else:
-                self.inky_previous_object = self.board_ghost_check[self.inky_state[0]][self.inky_state[1]]
-                self.inky_previous_state = copy(self.inky_state)
-                self.inky_state[0] = self.inky_state[0] - 1
-                self.inky_moving = True
+            self.direction_inky = random.randint(0,3)
+            self.inky_moving = True
+            if self.direction_inky == 0:
+                if self.move(self.inky_state[0], self.inky_state[1])[0] == self.collision_dict["wall"]:
+                    self.inky_moving = False
+                    pass
+                elif self.move(self.inky_state[0], self.inky_state[1])[0] == self.collision_dict["pacman"]:
+                    if self.killable_inky == False:
+                        self.done =True
+                    elif self.killable_inky == True:
+                        if self.inky_previous_object == ".":
+                            self.inky_killed = True
+                            self.inky_moving = False
+                            self.score += 10
+                        elif self.inky_previous_object == "o":
+                            self.inky_killed = True
+                            self.inky_moving = False
+                            #setup killable
+                            self.score += 100
+                        elif self.inky_previous_object == " ":
+                            self.inky_killed = True
+                            self.inky_moving = False
+                            #setup killable
+                else:
+                    self.inky_previous_object = self.board_ghost_check[self.inky_state[0]][self.inky_state[1]]
+                    self.inky_previous_state = copy(self.inky_state)
+                    self.inky_state[0] = self.inky_state[0] - 1
+                    self.inky_moving = True
 
-        if self.direction_inky == 1:
-            if self.move(self.inky_state[0], self.inky_state[1])[1] == self.collision_dict["wall"]:
-                self.inky_moving = False
-                pass
-            elif self.move(self.inky_state[0], self.inky_state[1])[1] == self.collision_dict["door"]:
-                self.inky_moving = False
-                pass
-            elif self.move(self.inky_state[0], self.inky_state[1])[1] == self.collision_dict["pacman"]:
-                self.done = True
-            else:
-                self.inky_previous_object = self.board_ghost_check[self.inky_state[0]][self.inky_state[1]]
-                self.inky_previous_state = copy(self.inky_state)
-                self.inky_state[0] = self.inky_state[0] + 1
-                self.inky_moving = True
+            if self.direction_inky == 1:
+                if self.move(self.inky_state[0], self.inky_state[1])[1] == self.collision_dict["wall"]:
+                    self.inky_moving = False
+                    pass
+                elif self.move(self.inky_state[0], self.inky_state[1])[1] == self.collision_dict["door"]:
+                    self.inky_moving = False
+                    pass
+                elif self.move(self.inky_state[0], self.inky_state[1])[1] == self.collision_dict["pacman"]:
+                    if self.killable_inky == False:
+                        self.done = True
+                    elif self.killable_inky == True:
+                        if self.inky_previous_object == ".":
+                            self.inky_killed = True
+                            self.inky_moving = False
+                            self.score += 10
+                        elif self.inky_previous_object == "o":
+                            self.inky_killed = True
+                            self.inky_moving = False
+                            # setup killable
+                            self.score += 100
+                        elif self.inky_previous_object == " ":
+                            self.inky_killed = True
+                            self.inky_moving = False
+                            # setup killable
+                else:
+                    self.inky_previous_object = self.board_ghost_check[self.inky_state[0]][self.inky_state[1]]
+                    self.inky_previous_state = copy(self.inky_state)
+                    self.inky_state[0] = self.inky_state[0] + 1
+                    self.inky_moving = True
 
-        if self.direction_inky == 2:
-            if self.move(self.inky_state[0], self.inky_state[1])[2] == self.collision_dict["wall"]:
-                self.inky_moving = False
-                pass
-            elif self.move(self.inky_state[0], self.inky_state[1])[2] == self.collision_dict["wrap"]:
-                self.inky_previous_state = copy(self.direction_inky)
-                self.inky_state = [10, 19]
-                self.inky_moving = True
-            elif self.move(self.inky_state[0], self.inky_state[1])[2] == self.collision_dict["pacman"]:
-                self.done = True
-            else:
-                self.inky_previous_object = self.board_ghost_check[self.inky_state[0]][self.inky_state[1]]
-                self.inky_previous_state = copy(self.inky_state)
-                self.inky_state[1] = self.inky_state[1] - 1
-                self.inky_moving = True
+            if self.direction_inky == 2:
+                if self.move(self.inky_state[0], self.inky_state[1])[2] == self.collision_dict["wall"]:
+                    self.inky_moving = False
+                    pass
+                elif self.move(self.inky_state[0], self.inky_state[1])[2] == self.collision_dict["wrap"]:
+                    self.inky_previous_state = copy(self.direction_inky)
+                    self.inky_state = [10, 19]
+                    self.inky_moving = True
+                elif self.move(self.inky_state[0], self.inky_state[1])[2] == self.collision_dict["pacman"]:
+                    if self.killable_inky == False:
+                        self.done = True
+                    elif self.killable_inky == True:
+                        if self.inky_previous_object == ".":
+                            self.inky_killed = True
+                            self.inky_moving = False
+                            self.score += 10
+                        elif self.inky_previous_object == "o":
+                            self.inky_killed = True
+                            self.inky_moving = False
+                            # setup killable
+                            self.score += 100
+                        elif self.inky_previous_object == " ":
+                            self.inky_killed = True
+                            self.inky_moving = False
+                            # setup killable
+                else:
+                    self.inky_previous_object = self.board_ghost_check[self.inky_state[0]][self.inky_state[1]]
+                    self.inky_previous_state = copy(self.inky_state)
+                    self.inky_state[1] = self.inky_state[1] - 1
+                    self.inky_moving = True
 
-        if self.direction_inky == 3:
-            if self.move(self.inky_state[0], self.inky_state[1])[3] == self.collision_dict["wall"]:
-                self.inky_moving = False
-                pass
-            elif self.move(self.inky_state[0], self.inky_state[1])[3] == self.collision_dict["wrap"]:
-                self.inky_previous_state = copy(self.direction_inky)
-                self.inky_state = [10, 1]
-                self.inky_moving = True
-            elif self.move(self.inky_state[0], self.inky_state[1])[3] == self.collision_dict["pacman"]:
-                self.done = True
-            else:
-                self.inky_previous_object = self.board_ghost_check[self.inky_state[0]][self.inky_state[1]]
-                self.inky_previous_state = copy(self.inky_state)
-                self.inky_state[1] = self.inky_state[1] + 1
-                self.inky_moving = True
-            
-    def update_inky_position(self):
-        if self.inky_state == [10, 2] and self.direction_inky == 3:
-            self.board[self.inky_previous_state[0]][self.inky_previous_state[1]] = "["
-            self.board[self.inky_state[0]][self.inky_state[1]] = "é"
-
-        elif self.current_state == [10, 18] and self.direction_inky == 2:
-            self.board[self.inky_previous_state[0]][self.inky_previous_state[1]] = "]"
-            self.board[self.inky_state[0]][self.inky_state[1]] = "é"
-
-        elif self.inky_moving == False :
+            if self.direction_inky == 3:
+                if self.move(self.inky_state[0], self.inky_state[1])[3] == self.collision_dict["wall"]:
+                    self.inky_moving = False
+                    pass
+                elif self.move(self.inky_state[0], self.inky_state[1])[3] == self.collision_dict["wrap"]:
+                    self.inky_previous_state = copy(self.direction_inky)
+                    self.inky_state = [10, 1]
+                    self.inky_moving = True
+                elif self.move(self.inky_state[0], self.inky_state[1])[3] == self.collision_dict["pacman"]:
+                    if self.killable_inky == False:
+                        self.done = True
+                    elif self.killable_inky == True:
+                        if self.inky_previous_object == ".":
+                            self.inky_killed = True
+                            self.inky_moving = False
+                            self.score += 10
+                        elif self.inky_previous_object == "o":
+                            self.inky_killed = True
+                            self.inky_moving = False
+                            # setup killable
+                            self.score += 100
+                        elif self.inky_previous_object == " ":
+                            self.inky_killed = True
+                            self.inky_moving = False
+                            # setup killable
+                else:
+                    self.inky_previous_object = self.board_ghost_check[self.inky_state[0]][self.inky_state[1]]
+                    self.inky_previous_state = copy(self.inky_state)
+                    self.inky_state[1] = self.inky_state[1] + 1
+                    self.inky_moving = True
+        elif self.inky_killed == True:
             pass
 
-        else:
-            self.board[self.inky_previous_state[0]][self.inky_previous_state[1]] = self.inky_previous_object
-            self.board[self.inky_state[0]][self.inky_state[1]] = "é"
+    def update_inky_position(self):
+        if self.inky_killed == False:
+            if self.inky_state == [10, 2] and self.direction_inky == 3:
+                self.board[self.inky_previous_state[0]][self.inky_previous_state[1]] = "["
+                self.board[self.inky_state[0]][self.inky_state[1]] = "é"
+
+            elif self.current_state == [10, 18] and self.direction_inky == 2:
+                self.board[self.inky_previous_state[0]][self.inky_previous_state[1]] = "]"
+                self.board[self.inky_state[0]][self.inky_state[1]] = "é"
+
+            elif self.inky_moving == False :
+                pass
+
+            else:
+                self.board[self.inky_previous_state[0]][self.inky_previous_state[1]] = self.inky_previous_object
+                self.board[self.inky_state[0]][self.inky_state[1]] = "é"
+        elif self.inky_killed == True:
+                if self.board[self.inky_state[0]][self.inky_state[1]] != "é":
+                    pass
+                elif self.board[self.inky_state[0]][self.inky_state[1]] == "é":
+                    self.board[self.inky_state[0]][self.inky_state[1]] = self.inky_previous_object
 
     def generate_map(self):
         for i in self.board:
@@ -267,8 +405,8 @@ if __name__ == '__main__':
 
     print("-------------------------------------La partie est terminée-------------------------------------")
     print("--------------------------Votre score est de: {}".format(world.score))
-    if world.score == 2480:
+    if world.score == 2500:
         reward = 1000
-    elif world.score != 2480:
+    elif world.score != 2500:
         reward = -300
 
