@@ -18,24 +18,23 @@ class GridWorld:
                             2: -1, 3: 1}
         self.P = {}
 
-    
     def reset(self, position_start):
         self.current_state = position_start
         self.currentIntState = self.getStateInt(position_start)
-        
+
     def matchStates(self):
-        i=0
+        i = 0
         for s in self.states:
             self.stateSpace[str(s)] = i
-            i = i+1
-    
+            i = i + 1
+
     def getStateInt(self, st):
         return self.stateSpace[str(st)]
-    
+
     def getStateCouple(self, st):
-        n_state = {i for i in self.stateSpace if self.stateSpace[i]==st}
+        n_state = {i for i in self.stateSpace if self.stateSpace[i] == st}
         return list(n_state)
-        
+
     def initP(self):
         for state in self.states:
             st = self.getStateInt(state)
@@ -45,10 +44,9 @@ class GridWorld:
                 stt = self.getStateInt(state_)
                 self.P[(stt, reward_, st, action)] = 1
 
-    
     def step(self, action):
         if action == 0:
-            if self.current_state[0] == 0 :
+            if self.current_state[0] == 0:
                 self.current_state[0] = self.grid_size[0] - 1
                 self.currentIntState = self.getStateInt(self.current_state)
                 self.reward = -1  # Pas de récompense pour traverser le mur
@@ -68,7 +66,7 @@ class GridWorld:
                 self.reward = -1  # Pas de récompense pour avancer
                 self.generate_grid()
                 self.endgame()
-            else :
+            else:
                 self.current_state[0] = self.current_state[0] + 1
                 self.currentIntState = self.getStateInt(self.current_state)
                 self.reward = -1  # Pas de récompense pour avancer
@@ -93,7 +91,7 @@ class GridWorld:
             if self.current_state[1] == self.grid_size[1] - 1:
                 self.current_state[1] = 0
                 self.currentIntState = self.getStateInt(self.current_state)
-                #print(self.current_state)
+                # print(self.current_state)
                 self.reward = -1  # Pas de récompense pour avancer
                 self.generate_grid()
                 self.endgame()
@@ -115,7 +113,7 @@ class GridWorld:
             self.done = True
 
     def generate_grid(self):
-        grid=[]
+        grid = []
         for i in range(self.grid_size[0]):
             grid.append([])
             for j in range(self.grid_size[1]):

@@ -15,15 +15,6 @@ class LineWorld:
         
     def setState(self, st):
         self.current_state = st
-      
-        
-    def initP(self):
-        for state in self.states:
-            for action in self.actions:
-                self.current_state = state
-                state_, reward_, done_ = self.step(action)
-                self.P[(state_, reward_, state, action)] = 1
-        
 
     def isTerminateState(self):
         if (self.current_state == self.end_good_state) or (self.current_state == self.end_bad_state):
