@@ -17,7 +17,6 @@ class Cant_stop:
         self.player_board = self.game_boards[self.turn].copy()
         self.step()
 
-
     def step(self):
         continue_playing = True
         while continue_playing:
@@ -35,7 +34,6 @@ class Cant_stop:
                     self.change_turn()
             else:
                 print("No available moves")
-
 
     def roll_dices(self):
         self.combinations = []
@@ -109,6 +107,9 @@ class Cant_stop:
     def move_to_play(self, action):
         print("Choose a move to play :")
         print(action)
+        if self.turn:
+            self.move_bonze(action[random.randint(len(action))])
+            return
         choice = input()
         self.move_bonze(action[choice])
 
@@ -124,6 +125,8 @@ class Cant_stop:
 
     def continue_or_stop(self):
         choice = input("0: Continue / 1 : Stop")
+        if self.turn:
+            return bool(random.randint(0, 1))
         return bool(choice)
 
     def change_turn(self):
