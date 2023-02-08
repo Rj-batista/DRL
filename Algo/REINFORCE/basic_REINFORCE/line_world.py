@@ -1,102 +1,19 @@
-import math
 
-import matplotlib.pyplot as plt
 import numpy as np
 import numpy.random
 import tensorflow as tf
 from tqdm import tqdm
+from Env.Line_World.line_world import LineWorld
 
 
-class DeepSingleAgentEnv:
-    def max_action_count(self) -> int:
-        pass
-
-    def state_description(self) -> np.ndarray:
-        pass
-
-    def state_dim(self) -> int:
-        pass
-
-    def is_game_over(self) -> bool:
-        pass
-
-    def act_with_action_id(self, action_id: int):
-        pass
-
-    def score(self) -> float:
-        pass
-
-    def available_actions_ids(self) -> np.ndarray:
-        pass
-
-    def reset(self):
-        pass
-
-    def view(self):
-        pass
-
-
-class LineWorld(DeepSingleAgentEnv):
-    def __init__(self, nb_cells: int = 5):
-        self.nb_cells = nb_cells
-        self.current_cell = math.floor(nb_cells / 2)
-        self.step_count = 0
-
-    def max_action_count(self) -> int:
-        return 2
-
-    def state_description(self) -> np.ndarray:
-        return np.array([self.current_cell / (self.nb_cells - 1) * 2.0 - 1.0])
-
-    def state_dim(self) -> int:
-        return 1
-
-    def is_game_over(self) -> bool:
-        if self.step_count > self.nb_cells ** 2:
-            return True
-        return self.current_cell == 0 or self.current_cell == self.nb_cells - 1
-
-    def act_with_action_id(self, action_id: int):
-        self.step_count += 1
-        if action_id == 0:
-            self.current_cell -= 1
-        else:
-            self.current_cell += 1
-
-    def score(self) -> float:
-        if self.current_cell == 0:
-            return -1.0
-        elif self.current_cell == self.nb_cells - 1:
-            return 1.0
-        else:
-            return 0.0
-
-    def available_actions_ids(self) -> np.ndarray:
-        return np.array([0, 1])
-
-    def reset(self):
-        self.current_cell = math.floor(self.nb_cells / 2)
-        self.step_count = 0
-
-    def view(self):
-        print(f'Game Over: {self.is_game_over()}')
-        print(f'score : {self.score()}')
-        for i in range(self.nb_cells):
-            if i == self.current_cell:
-                print("X", end='')
-            else:
-                print("_", end='')
-        print()
-
-
-def REINFORCE(env: DeepSingleAgentEnv, max_iter_count: int = 10000,
-                                 gamma: float = 0.99,
-                                 alpha: float = 0.1):
+def REINFORCE(env: LineWorld, max_iter_count: int = 10000,
+              gamma: float = 0.99,
+              alpha: float = 0.1):
     pi = tf.keras.models.Sequential()
-    pi.add(tf.keras.layers.Dense(env.max_action_count(),
-                                activation=tf.keras.activations.softmax,
-                                use_bias=True
-                                ))
+    pi.add(tf.keras.layers.Dense(env.num_actions,
+                                 activation=tf.keras.activations.softmax,
+                                 use_bias=True
+                                 ))
 
     ema_score = 0.0
     ema_nb_steps = 0.0
@@ -111,7 +28,7 @@ def REINFORCE(env: DeepSingleAgentEnv, max_iter_count: int = 10000,
     episode_rewards_buffer = []
 
     for _ in tqdm(range(max_iter_count)):
-        if env.is_game_over():
+        if env.done:
             ### TRAINING TIME !!!
             G = 0.0
 
@@ -129,11 +46,11 @@ def REINFORCE(env: DeepSingleAgentEnv, max_iter_count: int = 10000,
                         v.assign_add(alpha * (gamma ** t) * G * g)
 
             if first_episode:
-                ema_score = env.score()
+                ema_score = env.reward
                 ema_nb_steps = step
                 first_episode = False
             else:
-                ema_score = (1 - 0.9) * env.score() + 0.9 * ema_score
+                ema_score = (1 - 0.9) * env.reward + 0.9 * ema_score
                 ema_nb_steps = (1 - 0.9) * step + 0.9 * ema_nb_steps
                 ema_score_progress.append(ema_score)
                 ema_nb_steps_progress.append(ema_nb_steps)
@@ -144,11 +61,11 @@ def REINFORCE(env: DeepSingleAgentEnv, max_iter_count: int = 10000,
             episode_rewards_buffer.clear()
             step = 0
 
-        s = env.state_description()
+        s = np.array([env.current_state])
 
         episode_states_buffer.append(s)
 
-        aa = env.available_actions_ids()
+        aa = env.actions
 
         pi_s = pi(np.array([s]))[0].numpy()
         allowed_pi_s = pi_s[aa]
@@ -162,9 +79,9 @@ def REINFORCE(env: DeepSingleAgentEnv, max_iter_count: int = 10000,
 
         episode_actions_buffer.append(a)
 
-        old_score = env.score()
-        env.act_with_action_id(a)
-        new_score = env.score()
+        old_score = env.reward
+        env.step(a)
+        new_score = env.reward
         r = new_score - old_score
 
         episode_rewards_buffer.append(r)
@@ -173,9 +90,6 @@ def REINFORCE(env: DeepSingleAgentEnv, max_iter_count: int = 10000,
     return pi, ema_score_progress, ema_nb_steps_progress
 
 
-pi, scores, steps = REINFORCE(LineWorld(10), max_iter_count=10000)
+pi, scores, steps = REINFORCE(LineWorld(), max_iter_count=10000)
 print(pi.weights)
-plt.plot(scores)
-plt.show()
-plt.plot(steps)
-plt.show()
+print(scores)
