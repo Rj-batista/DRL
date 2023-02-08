@@ -1,3 +1,5 @@
+import numpy as np
+
 class GridWorld:
     def __init__(self, taille, position_start, good_end_position, bad_end_position):
         self.current_state = position_start  # État actuel (ligne, colonne)
@@ -16,11 +18,12 @@ class GridWorld:
         self.rewards = [0, 1, 3]
         self.actionSpace = {0: -self.grid_size[0], 1: self.grid_size[0],
                             2: -1, 3: 1}
-        self.P = {}
 
-    def reset(self, position_start):
-        self.current_state = position_start
-        self.currentIntState = self.getStateInt(position_start)
+    def reset(self):
+        self.done = False
+        self.current_state = [np.random.randint(0, self.grid_size[0] - 1), np.random.randint(0, self.grid_size[1] - 1)]
+        self.currentIntState = self.getStateInt(self.current_state)
+        self.reward = 0
 
     def matchStates(self):
         i = 0
@@ -35,27 +38,18 @@ class GridWorld:
         n_state = {i for i in self.stateSpace if self.stateSpace[i] == st}
         return list(n_state)
 
-    def initP(self):
-        for state in self.states:
-            st = self.getStateInt(state)
-            for action in self.actions:
-                self.current_state = state
-                state_, reward_, done_ = self.step(action)
-                stt = self.getStateInt(state_)
-                self.P[(stt, reward_, st, action)] = 1
-
     def step(self, action):
         if action == 0:
             if self.current_state[0] == 0:
                 self.current_state[0] = self.grid_size[0] - 1
                 self.currentIntState = self.getStateInt(self.current_state)
-                self.reward = -1  # Pas de récompense pour traverser le mur
+                self.reward = 0  # Pas de récompense pour traverser le mur
                 self.generate_grid()
                 self.endgame()
             else:
                 self.current_state[0] = self.current_state[0] - 1
                 self.currentIntState = self.getStateInt(self.current_state)
-                self.reward = -1  # Pas de récompense pour avancer
+                self.reward = 0  # Pas de récompense pour avancer
                 self.generate_grid()
                 self.endgame()
 
@@ -63,13 +57,13 @@ class GridWorld:
             if self.current_state[0] == self.grid_size[0] - 1:
                 self.current_state[0] = 0
                 self.currentIntState = self.getStateInt(self.current_state)
-                self.reward = -1  # Pas de récompense pour avancer
+                self.reward = 0  # Pas de récompense pour avancer
                 self.generate_grid()
                 self.endgame()
             else:
                 self.current_state[0] = self.current_state[0] + 1
                 self.currentIntState = self.getStateInt(self.current_state)
-                self.reward = -1  # Pas de récompense pour avancer
+                self.reward = 0  # Pas de récompense pour avancer
                 self.generate_grid()
                 self.endgame()
 
@@ -77,13 +71,13 @@ class GridWorld:
             if self.current_state[1] == 0:
                 self.current_state[1] = self.grid_size[1] - 1
                 self.currentIntState = self.getStateInt(self.current_state)
-                self.reward = -1  # Pas de récompense pour avancer
+                self.reward = 0 # Pas de récompense pour avancer
                 self.generate_grid()
                 self.endgame()
             else:
                 self.current_state[1] = self.current_state[1] - 1
                 self.currentIntState = self.getStateInt(self.current_state)
-                self.reward = -1  # Pas de récompense pour avancer
+                self.reward = 0  # Pas de récompense pour avancer
                 self.generate_grid()
                 self.endgame()
 
@@ -92,25 +86,36 @@ class GridWorld:
                 self.current_state[1] = 0
                 self.currentIntState = self.getStateInt(self.current_state)
                 # print(self.current_state)
-                self.reward = -1  # Pas de récompense pour avancer
+                self.reward = 0  # Pas de récompense pour avancer
                 self.generate_grid()
                 self.endgame()
             else:
                 self.current_state[1] = self.current_state[1] + 1
                 self.currentIntState = self.getStateInt(self.current_state)
-                self.reward = -1  # Pas de récompense pour avancer
+                self.reward = 0  # Pas de récompense pour avancer
                 self.generate_grid()
                 self.endgame()
                 # Si l'on atteint l'état final, la partie est terminée
-        return self.current_state, self.reward, self.done
+        return self.currentIntState, self.reward, self.done
 
     def endgame(self):
         if self.current_state == self.end_good_state:
-            self.reward = 10  # Récompense de 1 pour atteindre l'état final
+            self.reward = 0  # Récompense de 10 pour atteindre l'état final
             self.done = True
+            print("Une bonne récompense")
         elif self.current_state == self.end_bad_state:
             self.reward = -10
             self.done = True
+            print("Une mauvaise récompense")
+
+    # def update_grid(self):
+    #     new_grid = [["_", "_", "_", "_"],
+    #                 ["_", "_", "_", "_"],
+    #                 ["_", "_", "_", "_"],
+    #                 ["_", "_", "_", "_"]]
+    #     new_grid[self.current_state[0]][self.current_state[1]] = "X"
+    #     for i in new_grid:
+    #         print(i)
 
     def generate_grid(self):
         grid = []
