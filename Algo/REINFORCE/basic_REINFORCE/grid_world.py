@@ -60,7 +60,7 @@ def REINFORCE(env: GridWorld, max_iter_count: int = 10000,
             episode_rewards_buffer.clear()
             step = 0
 
-        s = np.array([env.currentIntState])
+        s = env.state_description
 
         episode_states_buffer.append(s)
 

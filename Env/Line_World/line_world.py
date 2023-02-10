@@ -13,6 +13,7 @@ class LineWorld:
         self.num_actions = 2  # Nombre total d'actions possibles
         self.line_world = ["_"] * (self.num_states - 1)
         self.line_world.insert(self.current_state, "X")
+        self.state_description = np.array([self.current_state / (nb_cells - 1) * 2.0 - 1.0])
 
     def reset(self):
         self.reward = 0.0

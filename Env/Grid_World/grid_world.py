@@ -18,6 +18,8 @@ class GridWorld:
         self.rewards = [0, 1, 3]
         self.actionSpace = {0: -self.grid_size[0], 1: self.grid_size[0],
                             2: -1, 3: 1}
+        self.state_description = np.array([self.getStateInt(self.current_state) / (36 - 1) * 2.0 - 1.0])
+
 
     def reset(self):
         self.done = False
