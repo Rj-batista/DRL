@@ -1,7 +1,8 @@
 import numpy as np
 
+
 class GridWorld:
-    def __init__(self, taille, position_start, good_end_position, bad_end_position):
+    def __init__(self, taille=[6, 6], position_start=[0, 1], good_end_position=[4, 2], bad_end_position=[3, 5]):
         self.current_state = position_start  # État actuel (ligne, colonne)
         self.states = [[x, y] for x in range(taille[0]) for y in range(taille[1])]
         self.end_good_state = good_end_position  # État final (ligne, colonne)
@@ -18,8 +19,12 @@ class GridWorld:
         self.rewards = [0, 1, 3]
         self.actionSpace = {0: -self.grid_size[0], 1: self.grid_size[0],
                             2: -1, 3: 1}
-        self.state_description = np.array([self.getStateInt(self.current_state) / (36 - 1) * 2.0 - 1.0])
 
+    def state_description(self):
+        return np.array([self.currentIntState / (len(self.states) - 1) * 2.0 - 1.0])
+
+    def state_dim(self):
+        return len(self.state_description())
 
     def reset(self):
         self.done = False
@@ -73,7 +78,7 @@ class GridWorld:
             if self.current_state[1] == 0:
                 self.current_state[1] = self.grid_size[1] - 1
                 self.currentIntState = self.getStateInt(self.current_state)
-                self.reward = 0 # Pas de récompense pour avancer
+                self.reward = 0  # Pas de récompense pour avancer
                 self.generate_grid()
                 self.endgame()
             else:
@@ -102,22 +107,13 @@ class GridWorld:
 
     def endgame(self):
         if self.current_state == self.end_good_state:
-            self.reward = 0  # Récompense de 10 pour atteindre l'état final
+            self.reward = 10  # Récompense de 10 pour atteindre l'état final
             self.done = True
             print("Une bonne récompense")
         elif self.current_state == self.end_bad_state:
             self.reward = -10
             self.done = True
             print("Une mauvaise récompense")
-
-    # def update_grid(self):
-    #     new_grid = [["_", "_", "_", "_"],
-    #                 ["_", "_", "_", "_"],
-    #                 ["_", "_", "_", "_"],
-    #                 ["_", "_", "_", "_"]]
-    #     new_grid[self.current_state[0]][self.current_state[1]] = "X"
-    #     for i in new_grid:
-    #         print(i)
 
     def generate_grid(self):
         grid = []

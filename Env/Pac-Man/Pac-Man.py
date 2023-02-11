@@ -97,7 +97,7 @@ class Game():
 
         self.generate_map()
 
-    def step(self, action):
+    def step(self, action):  # Action de Pac-man
         if action == 0:
             self.action(action)
 
@@ -217,8 +217,11 @@ class Game():
                     self.previous_state = copy(self.current_state)
                     self.current_state[0] = self.current_state[0] + 1
                 elif bas == any(self.ghost_list):
-                    self.match_ghost_and_state(bas)
-                    self.update_score_move_from_ghost()
+                    if self.killable_inky or self.killable_pinky or self.killable_blinky or self.killable_clyde == False:
+                        self.done = True
+                    elif self.killable_inky or self.killable_pinky or self.killable_blinky or self.killable_clyde == True:
+                        self.match_ghost_and_state(bas)
+                        self.update_score_move_from_ghost()
 
             if action == 2:
                 gauche = self.move(self.current_state[0], self.current_state[1])[2]
@@ -235,8 +238,11 @@ class Game():
                     self.previous_state = copy(self.current_state)
                     self.current_state[1] = self.current_state[1] - 1
                 elif gauche == any(self.ghost_list):
-                    self.match_ghost_and_state(gauche)
-                    self.update_score_move_from_ghost()
+                    if self.killable_inky or self.killable_pinky or self.killable_blinky or self.killable_clyde == False:
+                        self.done = True
+                    elif self.killable_inky or self.killable_pinky or self.killable_blinky or self.killable_clyde == True:
+                        self.match_ghost_and_state(gauche)
+                        self.update_score_move_from_ghost()
 
             if action == 3:
                 droite = self.move(self.current_state[0], self.current_state[1])[3]
@@ -253,8 +259,11 @@ class Game():
                     self.previous_state = copy(self.current_state)
                     self.current_state[1] = self.current_state[1] + 1
                 elif droite == any(self.ghost_list):
-                    self.match_ghost_and_state(droite)
-                    self.update_score_move_from_ghost()
+                    if self.killable_inky or self.killable_pinky or self.killable_blinky or self.killable_clyde == False:
+                        self.done = True
+                    elif self.killable_inky or self.killable_pinky or self.killable_blinky or self.killable_clyde == True:
+                        self.match_ghost_and_state(droite)
+                        self.update_score_move_from_ghost()
 
     def update_pacman_position(self, action):
         if self.current_state == [10, 2] and action == 3:

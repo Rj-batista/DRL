@@ -78,7 +78,7 @@ def REINFORCE_with_learned_baseline(env: GridWorld, max_iter_count: int = 10000,
             episode_rewards_buffer.clear()
             step = 0
 
-        s = np.array([env.currentIntState])
+        s = env.state_description()
 
         episode_states_buffer.append(s)
 
@@ -107,7 +107,7 @@ def REINFORCE_with_learned_baseline(env: GridWorld, max_iter_count: int = 10000,
     return pi, v, ema_score_progress, ema_nb_steps_progress
 
 
-game = GridWorld(taille=[6, 6], position_start=[0, 1], good_end_position=[4, 2], bad_end_position=[3, 5])
+game = GridWorld()
 pi, v, scores, steps = REINFORCE_with_learned_baseline(game, max_iter_count=10000)
 print(pi.weights)
 print(scores)

@@ -89,7 +89,7 @@ def REINFORCE(env: GridWorld, max_iter_count: int = 10000,
     return pi, ema_score_progress, ema_nb_steps_progress
 
 
-game = GridWorld(taille=[6, 6], position_start=[0, 1], good_end_position=[4, 2], bad_end_position=[3, 5])
+game = GridWorld()
 pi, scores, steps = REINFORCE(game, max_iter_count=10000)
 print(pi.weights)
 print(scores)
