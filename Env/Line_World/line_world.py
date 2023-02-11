@@ -1,7 +1,8 @@
 import numpy as np
 
+
 class LineWorld:
-    def __init__(self, nb_cells = 10, start_cell = 1, good_end_cell = 9, bad_end_cell = 0):
+    def __init__(self, nb_cells=10, start_cell=1, good_end_cell=9, bad_end_cell=0):
         self.done = None
         self.current_state = start_cell  # État actuel
         self.end_good_state = good_end_cell  # État final
@@ -19,22 +20,23 @@ class LineWorld:
         self.done = False
         self.current_state = np.random.randint(1, 8)
 
-    def isTerminateState(self):
-        if (self.current_state == self.end_good_state) or (self.current_state == self.end_bad_state):
-            return True
-        else:
-            return False
+    def state_description(self):
+        return np.array([self.current_state / (self.num_states - 1) * 2.0 - 1.0])
+
+    def state_dim(self):
+        return len(self.state_description())
 
     def step(self, action):
         # Si l'action est 1, on avance à droite
-        if (action == 1):
+        if (action == 1) and (self.current_state != self.end_good_state) and (self.current_state != self.end_bad_state):
             self.current_state += 1
             self.reward = 0  # Pas de récompense pour avancer
             self.line_world.remove("X")
             self.line_world.insert(self.current_state, "X")
             print(self.line_world)
         # Si l'action est 0, on avance à gauche
-        elif (action == 0):
+        elif (action == 0) and (self.current_state != self.end_good_state) and (
+                self.current_state != self.end_bad_state):
             self.current_state -= 1
             self.reward = 0  # Pas de récompense pour avancer
             self.line_world.remove("X")
