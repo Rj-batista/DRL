@@ -970,6 +970,8 @@ class Game():
         self.board[self.clyde_state[0]][self.clyde_state[1]] = "&"
 
 
+
+
 if __name__ == '__main__':
     """
     Il faut choisir un nombre entre 0 et 3
