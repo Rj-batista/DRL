@@ -61,7 +61,7 @@ def REINFORCE(env: LineWorld, max_iter_count: int = 10000,
             episode_rewards_buffer.clear()
             step = 0
 
-        s = np.array([env.current_state])
+        s = env.state_description
 
         episode_states_buffer.append(s)
 

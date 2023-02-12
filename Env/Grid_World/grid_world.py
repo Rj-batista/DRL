@@ -79,7 +79,7 @@ class GridWorld:
                 self.current_state[1] = self.grid_size[1] - 1
                 self.currentIntState = self.getStateInt(self.current_state)
                 self.reward = 0  # Pas de récompense pour avancer
-                #self.generate_grid()
+                self.generate_grid()
                 self.endgame()
             else:
                 self.current_state[1] = self.current_state[1] - 1
