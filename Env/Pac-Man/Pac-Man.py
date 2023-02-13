@@ -22,22 +22,22 @@ class Game():
         self.previous_state = [15, 11]
 
         self.inky_state = [8, 10]  # [8, 10]
-        self.inky_previous_object = None
+        self.inky_previous_object = self.collision_dict["void"]
         self.killable_inky = False
         self.inky_killed = False
 
         self.blinky_state = [10, 9]
-        self.blinky_previous_object = None
+        self.blinky_previous_object = self.collision_dict["void"]
         self.killable_blinky = False
         self.blinky_killed = False
 
         self.pinky_state = [10, 10]
-        self.pinky_previous_object = None
+        self.pinky_previous_object = self.collision_dict["void"]
         self.killable_pinky = False
         self.pinky_killed = False
 
         self.clyde_state = [10, 11]
-        self.clyde_previous_object = None
+        self.clyde_previous_object = self.collision_dict["void"]
         self.killable_clyde = False
         self.clyde_killed = False
 
@@ -281,7 +281,7 @@ class Game():
                     self.score += 10
                 elif gauche == self.collision_dict["wrap"]:
                     self.previous_state = copy(self.current_state)
-                    self.current_state = [10, 19]
+                    self.current_state = [10, 18]
                 elif gauche == self.collision_dict["void"]:
                     self.previous_state = copy(self.current_state)
                     self.current_state[1] = self.current_state[1] - 1
@@ -301,7 +301,7 @@ class Game():
                     self.score += 10
                 elif droite == self.collision_dict["wrap"]:
                     self.previous_state = copy(self.current_state)
-                    self.current_state = [10, 1]
+                    self.current_state = [10, 2]
                 elif droite == self.collision_dict["void"]:
                     self.previous_state = copy(self.current_state)
                     self.current_state[1] = self.current_state[1] + 1
@@ -335,6 +335,7 @@ class Game():
     """
 
     def inky(self, direction_inky):
+
         if self.inky_killed == False:
             self.inky_moving = True
             if direction_inky == 0:
@@ -400,7 +401,7 @@ class Game():
                     pass
                 elif self.move(self.inky_state[0], self.inky_state[1])[2] == self.collision_dict["wrap"]:
                     self.inky_previous_state = copy(self.inky_state)
-                    self.inky_state = [10, 19]
+                    self.inky_state = [10, 18]
                     self.inky_moving = True
                 elif self.move(self.inky_state[0], self.inky_state[1])[2] == self.collision_dict["pacman"]:
                     if self.killable_inky == False:
@@ -431,7 +432,7 @@ class Game():
                     pass
                 elif self.move(self.inky_state[0], self.inky_state[1])[3] == self.collision_dict["wrap"]:
                     self.inky_previous_state = copy(self.inky_state)
-                    self.inky_state = [10, 1]
+                    self.inky_state = [10, 2]
                     self.inky_moving = True
                 elif self.move(self.inky_state[0], self.inky_state[1])[3] == self.collision_dict["pacman"]:
                     if self.killable_inky == False:
@@ -461,11 +462,11 @@ class Game():
     def update_inky_position(self, direction_inky):
         if self.inky_killed == False:
             if self.inky_state == [10, 2] and direction_inky == 3:
-                self.board[self.inky_previous_state[0]][self.inky_previous_state[1]] = self.collision_dict["wrap"]
+                self.board[self.inky_previous_state[0]][self.inky_previous_state[1]] = self.board_ghost_check[self.inky_previous_state[0]][self.inky_previous_state[1]]
                 self.board[self.inky_state[0]][self.inky_state[1]] = self.ghost_list[0]
 
-            elif self.current_state == [10, 18] and direction_inky == 2:
-                self.board[self.inky_previous_state[0]][self.inky_previous_state[1]] = self.collision_dict["wrap"]
+            elif self.inky_state == [10, 18] and direction_inky == 2:
+                self.board[self.inky_previous_state[0]][self.inky_previous_state[1]] = self.board_ghost_check[self.inky_previous_state[0]][self.inky_previous_state[1]]
                 self.board[self.inky_state[0]][self.inky_state[1]] = self.ghost_list[0]
 
             elif self.inky_moving == False:
@@ -557,7 +558,7 @@ class Game():
                     pass
                 elif self.move(self.blinky_state[0], self.blinky_state[1])[2] == self.collision_dict["wrap"]:
                     self.blinky_previous_state = copy(self.blinky_state)
-                    self.blinky_state = [10, 19]
+                    self.blinky_state = [10, 18]
                     self.blinky_moving = True
                 elif self.move(self.blinky_state[0], self.blinky_state[1])[2] == self.collision_dict["pacman"]:
                     if self.killable_blinky == False:
@@ -588,7 +589,7 @@ class Game():
                     pass
                 elif self.move(self.blinky_state[0], self.blinky_state[1])[3] == self.collision_dict["wrap"]:
                     self.blinky_previous_state = copy(self.blinky_state)
-                    self.blinky_state = [10, 1]
+                    self.blinky_state = [10, 2]
                     self.blinky_moving = True
                 elif self.move(self.blinky_state[0], self.blinky_state[1])[3] == self.collision_dict["pacman"]:
                     if self.killable_blinky == False:
@@ -618,11 +619,11 @@ class Game():
     def update_blinky_position(self, direction_blinky):
         if self.blinky_killed == False:
             if self.blinky_state == [10, 2] and direction_blinky == 3:
-                self.board[self.blinky_previous_state[0]][self.blinky_previous_state[1]] = self.collision_dict["wrap"]
+                self.board[self.blinky_previous_state[0]][self.blinky_previous_state[1]] = self.board_ghost_check[self.blinky_previous_state[0]][self.blinky_previous_state[1]]
                 self.board[self.blinky_state[0]][self.blinky_state[1]] = self.ghost_list[1]
 
             elif self.blinky_state == [10, 18] and direction_blinky == 2:
-                self.board[self.blinky_previous_state[0]][self.blinky_previous_state[1]] = self.collision_dict["wrap"]
+                self.board[self.blinky_previous_state[0]][self.blinky_previous_state[1]] = self.board_ghost_check[self.blinky_previous_state[0]][self.blinky_previous_state[1]]
                 self.board[self.blinky_state[0]][self.blinky_state[1]] = self.ghost_list[1]
 
             elif self.blinky_moving == False:
@@ -714,7 +715,7 @@ class Game():
                     pass
                 elif self.move(self.pinky_state[0], self.pinky_state[1])[2] == self.collision_dict["wrap"]:
                     self.pinky_previous_state = copy(self.pinky_state)
-                    self.pinky_state = [10, 19]
+                    self.pinky_state = [10, 18]
                     self.pinky_moving = True
                 elif self.move(self.pinky_state[0], self.pinky_state[1])[2] == self.collision_dict["pacman"]:
                     if self.killable_pinky == False:
@@ -745,7 +746,7 @@ class Game():
                     pass
                 elif self.move(self.pinky_state[0], self.pinky_state[1])[3] == self.collision_dict["wrap"]:
                     self.pinky_previous_state = copy(self.pinky_state)
-                    self.pinky_state = [10, 1]
+                    self.pinky_state = [10, 2]
                     self.pinky_moving = True
                 elif self.move(self.pinky_state[0], self.pinky_state[1])[3] == self.collision_dict["pacman"]:
                     if self.killable_pinky == False:
@@ -775,11 +776,11 @@ class Game():
     def update_pinky_position(self, direction_pinky):
         if self.pinky_killed == False:
             if self.pinky_state == [10, 2] and direction_pinky == 3:
-                self.board[self.pinky_previous_state[0]][self.pinky_previous_state[1]] = self.collision_dict["wrap"]
+                self.board[self.pinky_previous_state[0]][self.pinky_previous_state[1]] = self.board_ghost_check[self.pinky_previous_state[0]][self.pinky_previous_state[1]]
                 self.board[self.pinky_state[0]][self.pinky_state[1]] = self.ghost_list[2]
 
             elif self.pinky_state == [10, 18] and direction_pinky == 2:
-                self.board[self.pinky_previous_state[0]][self.pinky_previous_state[1]] = self.collision_dict["wrap"]
+                self.board[self.pinky_previous_state[0]][self.pinky_previous_state[1]] = self.board_ghost_check[self.pinky_previous_state[0]][self.pinky_previous_state[1]]
                 self.board[self.pinky_state[0]][self.pinky_state[1]] = self.ghost_list[2]
 
             elif self.pinky_moving == False:
@@ -872,7 +873,7 @@ class Game():
                     pass
                 elif self.move(self.clyde_state[0], self.clyde_state[1])[2] == self.collision_dict["wrap"]:
                     self.clyde_previous_state = copy(self.clyde_state)
-                    self.clyde_state = [10, 19]
+                    self.clyde_state = [10, 18]
                     self.clyde_moving = True
                 elif self.move(self.clyde_state[0], self.clyde_state[1])[2] == self.collision_dict["pacman"]:
                     if self.killable_clyde == False:
@@ -903,7 +904,7 @@ class Game():
                     pass
                 elif self.move(self.clyde_state[0], self.clyde_state[1])[3] == self.collision_dict["wrap"]:
                     self.clyde_previous_state = copy(self.clyde_state)
-                    self.clyde_state = [10, 1]
+                    self.clyde_state = [10, 2]
                     self.clyde_moving = True
                 elif self.move(self.clyde_state[0], self.clyde_state[1])[3] == self.collision_dict["pacman"]:
                     if self.killable_clyde == False:
@@ -933,11 +934,11 @@ class Game():
     def update_clyde_position(self, direction_clyde):
         if self.clyde_killed == False:
             if self.clyde_state == [10, 2] and direction_clyde == 3:
-                self.board[self.clyde_previous_state[0]][self.clyde_previous_state[1]] = self.collision_dict["wrap"]
+                self.board[self.clyde_previous_state[0]][self.clyde_previous_state[1]] = self.board_ghost_check[self.clyde_previous_state[0]][self.clyde_previous_state[1]]
                 self.board[self.clyde_state[0]][self.clyde_state[1]] = self.ghost_list[3]
 
             elif self.clyde_state == [10, 18] and direction_clyde == 2:
-                self.board[self.clyde_previous_state[0]][self.clyde_previous_state[1]] = self.collision_dict["wrap"]
+                self.board[self.clyde_previous_state[0]][self.clyde_previous_state[1]] = self.board_ghost_check[self.clyde_previous_state[0]][self.clyde_previous_state[1]]
                 self.board[self.clyde_state[0]][self.clyde_state[1]] = self.ghost_list[3]
 
             elif self.clyde_moving == False:
@@ -960,6 +961,10 @@ class Game():
 
     def generate_map(self):
         for i in self.board:
+            print(*i, sep=' ')
+
+    def generate_ghost_board(self):
+        for i in self.board_ghost_check:
             print(*i, sep=' ')
 
     def initialize_position(self):
