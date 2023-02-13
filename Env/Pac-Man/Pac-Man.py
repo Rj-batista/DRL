@@ -54,7 +54,64 @@ class Game():
         self.fruit_collision = False
         self.initialize_position()
         self.generate_map()
+        self.actions = [0,1,2,3]
+        self.states = [[x, y] for x in range(len(self.board)) for y in range(len(self.board[0]))]
+        self.stateSpace = {}
+        self.matchStates()
+        self.currentIntState = self.getStateInt(self.current_state)
 
+    def reset(self):
+        self.current_state = [15, 11]  # État actuel (ligne, colonne)
+        self.previous_state = [15, 11]
+
+        self.inky_state = [8, 10]  # [8, 10]
+        self.inky_previous_object = None
+        self.killable_inky = False
+        self.inky_killed = False
+
+        self.blinky_state = [10, 9]
+        self.blinky_previous_object = None
+        self.killable_blinky = False
+        self.blinky_killed = False
+
+        self.pinky_state = [10, 10]
+        self.pinky_previous_object = None
+        self.killable_pinky = False
+        self.pinky_killed = False
+
+        self.clyde_state = [10, 11]
+        self.clyde_previous_object = None
+        self.killable_clyde = False
+        self.clyde_killed = False
+        self.currentIntState = self.getStateInt(self.current_state)
+        
+        self.score = 0  # 10*208 : . et 100*4 : o score totale
+        self.done = False  # Indique si la partie est terminée
+        self.compteur_first_step = 0
+        self.compteur_ghost = 0
+        self.fruit_collision = False
+        self.initialize_position()
+        self.board = board()
+        self.board_ghost_check = board()
+        self.generate_map()
+        
+       
+    def state_description(self):
+        return np.array([self.currentIntState / (len(self.states) - 1) * 2.0 - 1.0])
+    
+    def getStateInt(self, st):
+        return self.stateSpace[str(st)]
+    
+    def matchStates(self):
+        i = 0
+        for s in self.states:
+            self.stateSpace[str(s)] = i
+            i = i + 1
+            
+    def getStateCouple(self, st):
+        n_state = {i for i in self.stateSpace if self.stateSpace[i] == st}
+        return list(n_state)
+    
     def chose_next_move(self):
         if self.compteur_first_step <= 3:
             chose_inky = [2, 2, 0, 0]
@@ -97,7 +154,7 @@ class Game():
 
         self.generate_map()
 
-    def step(self, action):
+    def step(self, action):  # Action de Pac-man
         if action == 0:
             self.action(action)
 
@@ -123,25 +180,75 @@ class Game():
     def match_ghost_and_state(self, object_to_match):
         if object_to_match == self.ghost_list[0]:
             self.inky_killed = True
+            self.update_score_move_from_ghost(self.inky_previous_object, object_to_match)
         elif object_to_match == self.ghost_list[1]:
             self.blinky_killed = True
+            self.update_score_move_from_ghost(self.blinky_previous_object, object_to_match)
         elif object_to_match == self.ghost_list[2]:
             self.pinky_killed = True
+            self.update_score_move_from_ghost(self.pinky_previous_object, object_to_match)
         elif object_to_match == self.ghost_list[3]:
             self.clyde_killed = True
+            self.update_score_move_from_ghost(self.clyde_previous_object, object_to_match)
 
-    def update_score_move_from_ghost(self):
-        if self.inky_previous_object == ".":
-            self.previous_state = copy(self.current_state)
-            self.current_state[0] = self.current_state[0] - 1
-            self.score += 10
-        elif self.inky_previous_object == "o":
-            self.previous_state = copy(self.current_state)
-            self.current_state[0] = self.current_state[0] - 1
-            self.score += 100
-        elif self.inky_previous_object == " ":
-            self.previous_state = copy(self.current_state)
-            self.current_state[0] = self.current_state[0] - 1
+    def update_score_move_from_ghost(self, previous_object, direction):
+        if direction == self.move(self.current_state[0], self.current_state[1])[0]:
+            if previous_object == self.collision_dict["point"]:
+                self.previous_state = copy(self.current_state)
+                self.current_state[0] = self.current_state[0] - 1
+                self.score += 10
+            elif previous_object == self.collision_dict["fruit"]:
+                self.previous_state = copy(self.current_state)
+                self.current_state[0] = self.current_state[0] - 1
+                self.score += 100
+            elif previous_object == self.collision_dict["void"]:
+                self.previous_state = copy(self.current_state)
+                self.current_state[0] = self.current_state[0] - 1
+
+        elif direction == self.move(self.current_state[0], self.current_state[1])[1]:
+            if previous_object == self.collision_dict["point"]:
+                self.previous_state = copy(self.current_state)
+                self.current_state[0] = self.current_state[0] + 1
+                self.score += 10
+            elif previous_object == self.collision_dict["fruit"]:
+                self.previous_state = copy(self.current_state)
+                self.current_state[0] = self.current_state[0] + 1
+                self.score += 100
+            elif previous_object == self.collision_dict["void"]:
+                self.previous_state = copy(self.current_state)
+                self.current_state[0] = self.current_state[0] + 1
+
+        elif direction == self.move(self.current_state[0], self.current_state[1])[2]:
+            if previous_object == self.collision_dict["point"]:
+                self.previous_state = copy(self.current_state)
+                self.current_state[1] = self.current_state[1] - 1
+                self.score += 10
+            elif previous_object == self.collision_dict["fruit"]:
+                self.previous_state = copy(self.current_state)
+                self.current_state[1] = self.current_state[1] - 1
+                self.score += 100
+            elif previous_object == self.collision_dict["void"]:
+                self.previous_state = copy(self.current_state)
+                self.current_state[1] = self.current_state[1] - 1
+            elif previous_object == self.collision_dict["wrap"]:
+                self.previous_state = copy(self.current_state)
+                self.current_state = [10, 19]
+
+        elif direction == self.move(self.current_state[0], self.current_state[1])[3]:
+            if previous_object == self.collision_dict["point"]:
+                self.previous_state = copy(self.current_state)
+                self.current_state[1] = self.current_state[1] + 1
+                self.score += 10
+            elif previous_object == self.collision_dict["fruit"]:
+                self.previous_state = copy(self.current_state)
+                self.current_state[1] = self.current_state[1] + 1
+                self.score += 100
+            elif previous_object == self.collision_dict["void"]:
+                self.previous_state = copy(self.current_state)
+                self.current_state[1] = self.current_state[1] + 1
+            elif previous_object == self.collision_dict["wrap"]:
+                self.previous_state = copy(self.current_state)
+                self.current_state = [10, 1]
 
     def timer_fruit(self):
         if self.compteur_ghost > 4:
@@ -191,7 +298,6 @@ class Game():
                         self.done = True
                     elif self.killable_inky or self.killable_pinky or self.killable_blinky or self.killable_clyde == True:
                         self.match_ghost_and_state(haut)
-                        self.update_score_move_from_ghost()
 
             if action == 1:
                 bas = self.move(self.current_state[0], self.current_state[1])[1]
@@ -217,8 +323,10 @@ class Game():
                     self.previous_state = copy(self.current_state)
                     self.current_state[0] = self.current_state[0] + 1
                 elif bas == any(self.ghost_list):
-                    self.match_ghost_and_state(bas)
-                    self.update_score_move_from_ghost()
+                    if self.killable_inky or self.killable_pinky or self.killable_blinky or self.killable_clyde == False:
+                        self.done = True
+                    elif self.killable_inky or self.killable_pinky or self.killable_blinky or self.killable_clyde == True:
+                        self.match_ghost_and_state(bas)
 
             if action == 2:
                 gauche = self.move(self.current_state[0], self.current_state[1])[2]
@@ -230,13 +338,15 @@ class Game():
                     self.score += 10
                 elif gauche == self.collision_dict["wrap"]:
                     self.previous_state = copy(self.current_state)
-                    self.current_state = [10, 19]
+                    self.current_state = [10, 18]
                 elif gauche == self.collision_dict["void"]:
                     self.previous_state = copy(self.current_state)
                     self.current_state[1] = self.current_state[1] - 1
                 elif gauche == any(self.ghost_list):
-                    self.match_ghost_and_state(gauche)
-                    self.update_score_move_from_ghost()
+                    if self.killable_inky or self.killable_pinky or self.killable_blinky or self.killable_clyde == False:
+                        self.done = True
+                    elif self.killable_inky or self.killable_pinky or self.killable_blinky or self.killable_clyde == True:
+                        self.match_ghost_and_state(gauche)
 
             if action == 3:
                 droite = self.move(self.current_state[0], self.current_state[1])[3]
@@ -248,27 +358,24 @@ class Game():
                     self.score += 10
                 elif droite == self.collision_dict["wrap"]:
                     self.previous_state = copy(self.current_state)
-                    self.current_state = [10, 1]
+                    self.current_state = [10, 2]
                 elif droite == self.collision_dict["void"]:
                     self.previous_state = copy(self.current_state)
                     self.current_state[1] = self.current_state[1] + 1
-                elif droite == any(self.ghost_list):
-                    self.match_ghost_and_state(droite)
-                    self.update_score_move_from_ghost()
 
     def update_pacman_position(self, action):
         if self.current_state == [10, 2] and action == 3:
-            self.board[self.previous_state[0]][self.previous_state[1]] = "["
+            self.board[self.previous_state[0]][self.previous_state[1]] = self.collision_dict["wrap"]
             self.board[self.current_state[0]][self.current_state[1]] = "@"
 
-            self.board_ghost_check[self.previous_state[0]][self.previous_state[1]] = "["
+            self.board_ghost_check[self.previous_state[0]][self.previous_state[1]] = self.collision_dict["wrap"]
             self.board_ghost_check[self.current_state[0]][self.current_state[1]] = "@"
 
         elif self.current_state == [10, 18] and action == 2:
-            self.board[self.previous_state[0]][self.previous_state[1]] = "]"
+            self.board[self.previous_state[0]][self.previous_state[1]] = self.collision_dict["wrap"]
             self.board[self.current_state[0]][self.current_state[1]] = "@"
 
-            self.board_ghost_check[self.previous_state[0]][self.previous_state[1]] = "]"
+            self.board_ghost_check[self.previous_state[0]][self.previous_state[1]] = self.collision_dict["wrap"]
             self.board_ghost_check[self.current_state[0]][self.current_state[1]] = "@"
 
         else:
@@ -285,6 +392,7 @@ class Game():
     """
 
     def inky(self, direction_inky):
+
         if self.inky_killed == False:
             self.inky_moving = True
             if direction_inky == 0:
@@ -295,16 +403,16 @@ class Game():
                     if self.killable_inky == False:
                         self.done = True
                     elif self.killable_inky == True:
-                        if self.inky_previous_object == ".":
+                        if self.inky_previous_object == self.collision_dict["point"]:
                             self.inky_killed = True
                             self.inky_moving = False
                             self.score += 10
-                        elif self.inky_previous_object == "o":
+                        elif self.inky_previous_object == self.collision_dict["fruit"]:
                             self.inky_killed = True
                             self.inky_moving = False
                             # setup killable
                             self.score += 100
-                        elif self.inky_previous_object == " ":
+                        elif self.inky_previous_object == self.collision_dict["void"]:
                             self.inky_killed = True
                             self.inky_moving = False
                             # setup killable
@@ -325,16 +433,16 @@ class Game():
                     if self.killable_inky == False:
                         self.done = True
                     elif self.killable_inky == True:
-                        if self.inky_previous_object == ".":
+                        if self.inky_previous_object == self.collision_dict["point"]:
                             self.inky_killed = True
                             self.inky_moving = False
                             self.score += 10
-                        elif self.inky_previous_object == "o":
+                        elif self.inky_previous_object == self.collision_dict["fruit"]:
                             self.inky_killed = True
                             self.inky_moving = False
                             # setup killable
                             self.score += 100
-                        elif self.inky_previous_object == " ":
+                        elif self.inky_previous_object == self.collision_dict["void"]:
                             self.inky_killed = True
                             self.inky_moving = False
                             # setup killable
@@ -349,23 +457,23 @@ class Game():
                     self.inky_moving = False
                     pass
                 elif self.move(self.inky_state[0], self.inky_state[1])[2] == self.collision_dict["wrap"]:
-                    self.inky_previous_state = copy(direction_inky)
-                    self.inky_state = [10, 19]
+                    self.inky_previous_state = copy(self.inky_state)
+                    self.inky_state = [10, 18]
                     self.inky_moving = True
                 elif self.move(self.inky_state[0], self.inky_state[1])[2] == self.collision_dict["pacman"]:
                     if self.killable_inky == False:
                         self.done = True
                     elif self.killable_inky == True:
-                        if self.inky_previous_object == ".":
+                        if self.inky_previous_object == self.collision_dict["point"]:
                             self.inky_killed = True
                             self.inky_moving = False
                             self.score += 10
-                        elif self.inky_previous_object == "o":
+                        elif self.inky_previous_object == self.collision_dict["fruit"]:
                             self.inky_killed = True
                             self.inky_moving = False
                             # setup killable
                             self.score += 100
-                        elif self.inky_previous_object == " ":
+                        elif self.inky_previous_object == self.collision_dict["void"]:
                             self.inky_killed = True
                             self.inky_moving = False
                             # setup killable
@@ -380,23 +488,23 @@ class Game():
                     self.inky_moving = False
                     pass
                 elif self.move(self.inky_state[0], self.inky_state[1])[3] == self.collision_dict["wrap"]:
-                    self.inky_previous_state = copy(direction_inky)
-                    self.inky_state = [10, 1]
+                    self.inky_previous_state = copy(self.inky_state)
+                    self.inky_state = [10, 2]
                     self.inky_moving = True
                 elif self.move(self.inky_state[0], self.inky_state[1])[3] == self.collision_dict["pacman"]:
                     if self.killable_inky == False:
                         self.done = True
                     elif self.killable_inky == True:
-                        if self.inky_previous_object == ".":
+                        if self.inky_previous_object == self.collision_dict["point"]:
                             self.inky_killed = True
                             self.inky_moving = False
                             self.score += 10
-                        elif self.inky_previous_object == "o":
+                        elif self.inky_previous_object == self.collision_dict["fruit"]:
                             self.inky_killed = True
                             self.inky_moving = False
                             # setup killable
                             self.score += 100
-                        elif self.inky_previous_object == " ":
+                        elif self.inky_previous_object == self.collision_dict["void"]:
                             self.inky_killed = True
                             self.inky_moving = False
                             # setup killable
@@ -411,23 +519,23 @@ class Game():
     def update_inky_position(self, direction_inky):
         if self.inky_killed == False:
             if self.inky_state == [10, 2] and direction_inky == 3:
-                self.board[self.inky_previous_state[0]][self.inky_previous_state[1]] = "["
-                self.board[self.inky_state[0]][self.inky_state[1]] = "é"
+                self.board[self.inky_previous_state[0]][self.inky_previous_state[1]] = self.board_ghost_check[self.inky_previous_state[0]][self.inky_previous_state[1]]
+                self.board[self.inky_state[0]][self.inky_state[1]] = self.ghost_list[0]
 
-            elif self.current_state == [10, 18] and direction_inky == 2:
-                self.board[self.inky_previous_state[0]][self.inky_previous_state[1]] = "]"
-                self.board[self.inky_state[0]][self.inky_state[1]] = "é"
+            elif self.inky_state == [10, 18] and direction_inky == 2:
+                self.board[self.inky_previous_state[0]][self.inky_previous_state[1]] = self.board_ghost_check[self.inky_previous_state[0]][self.inky_previous_state[1]]
+                self.board[self.inky_state[0]][self.inky_state[1]] = self.ghost_list[0]
 
             elif self.inky_moving == False:
                 pass
 
             else:
                 self.board[self.inky_previous_state[0]][self.inky_previous_state[1]] = self.inky_previous_object
-                self.board[self.inky_state[0]][self.inky_state[1]] = "é"
+                self.board[self.inky_state[0]][self.inky_state[1]] = self.ghost_list[0]
         elif self.inky_killed == True:
-            if self.board[self.inky_state[0]][self.inky_state[1]] != "é":
+            if self.board[self.inky_state[0]][self.inky_state[1]] != self.ghost_list[0]:
                 pass
-            elif self.board[self.inky_state[0]][self.inky_state[1]] == "é":
+            elif self.board[self.inky_state[0]][self.inky_state[1]] == self.ghost_list[0]:
                 self.board[self.inky_state[0]][self.inky_state[1]] = self.inky_previous_object
 
     """
@@ -447,16 +555,16 @@ class Game():
                     if self.killable_blinky == False:
                         self.done = True
                     elif self.killable_blinky == True:
-                        if self.blinky_previous_object == ".":
+                        if self.blinky_previous_object == self.collision_dict["point"]:
                             self.blinky_killed = True
                             self.blinky_moving = False
                             self.score += 10
-                        elif self.blinky_previous_object == "o":
+                        elif self.blinky_previous_object == self.collision_dict["fruit"]:
                             self.blinky_killed = True
                             self.blinky_moving = False
                             # setup killable
                             self.score += 100
-                        elif self.blinky_previous_object == " ":
+                        elif self.blinky_previous_object == self.collision_dict["void"]:
                             self.blinky_killed = True
                             self.blinky_moving = False
                             # setup killable
@@ -482,16 +590,16 @@ class Game():
                     if self.killable_blinky == False:
                         self.done = True
                     elif self.killable_blinky == True:
-                        if self.blinky_previous_object == ".":
+                        if self.blinky_previous_object == self.collision_dict["point"]:
                             self.blinky_killed = True
                             self.blinky_moving = False
                             self.score += 10
-                        elif self.blinky_previous_object == "o":
+                        elif self.blinky_previous_object == self.collision_dict["fruit"]:
                             self.blinky_killed = True
                             self.blinky_moving = False
                             # setup killable
                             self.score += 100
-                        elif self.blinky_previous_object == " ":
+                        elif self.blinky_previous_object == self.collision_dict["void"]:
                             self.blinky_killed = True
                             self.blinky_moving = False
                             # setup killable
@@ -506,23 +614,23 @@ class Game():
                     self.blinky_moving = False
                     pass
                 elif self.move(self.blinky_state[0], self.blinky_state[1])[2] == self.collision_dict["wrap"]:
-                    self.blinky_previous_state = copy(direction_blinky)
-                    self.blinky_state = [10, 19]
+                    self.blinky_previous_state = copy(self.blinky_state)
+                    self.blinky_state = [10, 18]
                     self.blinky_moving = True
                 elif self.move(self.blinky_state[0], self.blinky_state[1])[2] == self.collision_dict["pacman"]:
                     if self.killable_blinky == False:
                         self.done = True
                     elif self.killable_blinky == True:
-                        if self.blinky_previous_object == ".":
+                        if self.blinky_previous_object == self.collision_dict["point"]:
                             self.blinky_killed = True
                             self.blinky_moving = False
                             self.score += 10
-                        elif self.blinky_previous_object == "o":
+                        elif self.blinky_previous_object == self.collision_dict["fruit"]:
                             self.blinky_killed = True
                             self.blinky_moving = False
                             # setup killable
                             self.score += 100
-                        elif self.blinky_previous_object == " ":
+                        elif self.blinky_previous_object == self.collision_dict["void"]:
                             self.blinky_killed = True
                             self.blinky_moving = False
                             # setup killable
@@ -537,23 +645,23 @@ class Game():
                     self.blinky_moving = False
                     pass
                 elif self.move(self.blinky_state[0], self.blinky_state[1])[3] == self.collision_dict["wrap"]:
-                    self.blinky_previous_state = copy(direction_blinky)
-                    self.blinky_state = [10, 1]
+                    self.blinky_previous_state = copy(self.blinky_state)
+                    self.blinky_state = [10, 2]
                     self.blinky_moving = True
                 elif self.move(self.blinky_state[0], self.blinky_state[1])[3] == self.collision_dict["pacman"]:
                     if self.killable_blinky == False:
                         self.done = True
                     elif self.killable_blinky == True:
-                        if self.blinky_previous_object == ".":
+                        if self.blinky_previous_object == self.collision_dict["point"]:
                             self.blinky_killed = True
                             self.blinky_moving = False
                             self.score += 10
-                        elif self.blinky_previous_object == "o":
+                        elif self.blinky_previous_object == self.collision_dict["fruit"]:
                             self.blinky_killed = True
                             self.blinky_moving = False
                             # setup killable
                             self.score += 100
-                        elif self.blinky_previous_object == " ":
+                        elif self.blinky_previous_object == self.collision_dict["void"]:
                             self.blinky_killed = True
                             self.blinky_moving = False
                             # setup killable
@@ -568,23 +676,23 @@ class Game():
     def update_blinky_position(self, direction_blinky):
         if self.blinky_killed == False:
             if self.blinky_state == [10, 2] and direction_blinky == 3:
-                self.board[self.blinky_previous_state[0]][self.blinky_previous_state[1]] = "["
-                self.board[self.blinky_state[0]][self.blinky_state[1]] = "ç"
+                self.board[self.blinky_previous_state[0]][self.blinky_previous_state[1]] = self.board_ghost_check[self.blinky_previous_state[0]][self.blinky_previous_state[1]]
+                self.board[self.blinky_state[0]][self.blinky_state[1]] = self.ghost_list[1]
 
             elif self.blinky_state == [10, 18] and direction_blinky == 2:
-                self.board[self.blinky_previous_state[0]][self.blinky_previous_state[1]] = "]"
-                self.board[self.blinky_state[0]][self.blinky_state[1]] = "ç"
+                self.board[self.blinky_previous_state[0]][self.blinky_previous_state[1]] = self.board_ghost_check[self.blinky_previous_state[0]][self.blinky_previous_state[1]]
+                self.board[self.blinky_state[0]][self.blinky_state[1]] = self.ghost_list[1]
 
             elif self.blinky_moving == False:
                 pass
 
             else:
                 self.board[self.blinky_previous_state[0]][self.blinky_previous_state[1]] = self.blinky_previous_object
-                self.board[self.blinky_state[0]][self.blinky_state[1]] = "ç"
+                self.board[self.blinky_state[0]][self.blinky_state[1]] = self.ghost_list[1]
         elif self.blinky_killed == True:
-            if self.board[self.blinky_state[0]][self.blinky_state[1]] != "ç":
+            if self.board[self.blinky_state[0]][self.blinky_state[1]] != self.ghost_list[1]:
                 pass
-            elif self.board[self.blinky_state[0]][self.blinky_state[1]] == "ç":
+            elif self.board[self.blinky_state[0]][self.blinky_state[1]] == self.ghost_list[1]:
                 self.board[self.blinky_state[0]][self.blinky_state[1]] = self.blinky_previous_object
 
     """
@@ -604,16 +712,16 @@ class Game():
                     if self.killable_pinky == False:
                         self.done = True
                     elif self.killable_pinky == True:
-                        if self.pinky_previous_object == ".":
+                        if self.pinky_previous_object == self.collision_dict["point"]:
                             self.pinky_killed = True
                             self.pinky_moving = False
                             self.score += 10
-                        elif self.pinky_previous_object == "o":
+                        elif self.pinky_previous_object == self.collision_dict["fruit"]:
                             self.pinky_killed = True
                             self.pinky_moving = False
                             # setup killable
                             self.score += 100
-                        elif self.pinky_previous_object == " ":
+                        elif self.pinky_previous_object == self.collision_dict["void"]:
                             self.pinky_killed = True
                             self.pinky_moving = False
                             # setup killable
@@ -639,16 +747,16 @@ class Game():
                     if self.killable_pinky == False:
                         self.done = True
                     elif self.killable_pinky == True:
-                        if self.pinky_previous_object == ".":
+                        if self.pinky_previous_object == self.collision_dict["point"]:
                             self.pinky_killed = True
                             self.pinky_moving = False
                             self.score += 10
-                        elif self.pinky_previous_object == "o":
+                        elif self.pinky_previous_object == self.collision_dict["fruit"]:
                             self.pinky_killed = True
                             self.pinky_moving = False
                             # setup killable
                             self.score += 100
-                        elif self.pinky_previous_object == " ":
+                        elif self.pinky_previous_object == self.collision_dict["void"]:
                             self.pinky_killed = True
                             self.pinky_moving = False
                             # setup killable
@@ -663,23 +771,23 @@ class Game():
                     self.pinky_moving = False
                     pass
                 elif self.move(self.pinky_state[0], self.pinky_state[1])[2] == self.collision_dict["wrap"]:
-                    self.pinky_previous_state = copy(direction_pinky)
-                    self.pinky_state = [10, 19]
+                    self.pinky_previous_state = copy(self.pinky_state)
+                    self.pinky_state = [10, 18]
                     self.pinky_moving = True
                 elif self.move(self.pinky_state[0], self.pinky_state[1])[2] == self.collision_dict["pacman"]:
                     if self.killable_pinky == False:
                         self.done = True
                     elif self.killable_pinky == True:
-                        if self.pinky_previous_object == ".":
+                        if self.pinky_previous_object == self.collision_dict["point"]:
                             self.pinky_killed = True
                             self.pinky_moving = False
                             self.score += 10
-                        elif self.pinky_previous_object == "o":
+                        elif self.pinky_previous_object == self.collision_dict["fruit"]:
                             self.pinky_killed = True
                             self.pinky_moving = False
                             # setup killable
                             self.score += 100
-                        elif self.pinky_previous_object == " ":
+                        elif self.pinky_previous_object == self.collision_dict["void"]:
                             self.pinky_killed = True
                             self.pinky_moving = False
                             # setup killable
@@ -694,23 +802,23 @@ class Game():
                     self.pinky_moving = False
                     pass
                 elif self.move(self.pinky_state[0], self.pinky_state[1])[3] == self.collision_dict["wrap"]:
-                    self.pinky_previous_state = copy(direction_pinky)
-                    self.pinky_state = [10, 1]
+                    self.pinky_previous_state = copy(self.pinky_state)
+                    self.pinky_state = [10, 2]
                     self.pinky_moving = True
                 elif self.move(self.pinky_state[0], self.pinky_state[1])[3] == self.collision_dict["pacman"]:
                     if self.killable_pinky == False:
                         self.done = True
                     elif self.killable_pinky == True:
-                        if self.pinky_previous_object == ".":
+                        if self.pinky_previous_object == self.collision_dict["point"]:
                             self.pinky_killed = True
                             self.pinky_moving = False
                             self.score += 10
-                        elif self.pinky_previous_object == "o":
+                        elif self.pinky_previous_object == self.collision_dict["fruit"]:
                             self.pinky_killed = True
                             self.pinky_moving = False
                             # setup killable
                             self.score += 100
-                        elif self.pinky_previous_object == " ":
+                        elif self.pinky_previous_object == self.collision_dict["void"]:
                             self.pinky_killed = True
                             self.pinky_moving = False
                             # setup killable
@@ -725,26 +833,26 @@ class Game():
     def update_pinky_position(self, direction_pinky):
         if self.pinky_killed == False:
             if self.pinky_state == [10, 2] and direction_pinky == 3:
-                self.board[self.pinky_previous_state[0]][self.pinky_previous_state[1]] = "["
-                self.board[self.pinky_state[0]][self.pinky_state[1]] = "à"
+                self.board[self.pinky_previous_state[0]][self.pinky_previous_state[1]] = self.board_ghost_check[self.pinky_previous_state[0]][self.pinky_previous_state[1]]
+                self.board[self.pinky_state[0]][self.pinky_state[1]] = self.ghost_list[2]
 
             elif self.pinky_state == [10, 18] and direction_pinky == 2:
-                self.board[self.pinky_previous_state[0]][self.pinky_previous_state[1]] = "]"
-                self.board[self.pinky_state[0]][self.pinky_state[1]] = "à"
+                self.board[self.pinky_previous_state[0]][self.pinky_previous_state[1]] = self.board_ghost_check[self.pinky_previous_state[0]][self.pinky_previous_state[1]]
+                self.board[self.pinky_state[0]][self.pinky_state[1]] = self.ghost_list[2]
 
             elif self.pinky_moving == False:
                 pass
 
             else:
                 self.board[self.pinky_previous_state[0]][self.pinky_previous_state[1]] = self.pinky_previous_object
-                self.board[self.pinky_state[0]][self.pinky_state[1]] = "à"
+                self.board[self.pinky_state[0]][self.pinky_state[1]] = self.ghost_list[2]
         elif self.pinky_killed == True:
-            if self.board[self.pinky_state[0]][self.pinky_state[1]] != "à":
+            if self.board[self.pinky_state[0]][self.pinky_state[1]] != self.ghost_list[2]:
                 pass
-            elif self.board[self.pinky_state[0]][self.pinky_state[1]] == "à":
+            elif self.board[self.pinky_state[0]][self.pinky_state[1]] == self.ghost_list[2]:
                 self.board[self.pinky_state[0]][self.pinky_state[1]] = self.pinky_previous_object
 
-    """
+    """    
     ---------------------------------------------------------
     //CLYDE
     ---------------------------------------------------------
@@ -761,16 +869,16 @@ class Game():
                     if self.killable_clyde == False:
                         self.done = True
                     elif self.killable_clyde == True:
-                        if self.clyde_previous_object == ".":
+                        if self.clyde_previous_object == self.collision_dict["point"]:
                             self.clyde_killed = True
                             self.clyde_moving = False
                             self.score += 10
-                        elif self.clyde_previous_object == "o":
+                        elif self.clyde_previous_object == self.collision_dict["fruit"]:
                             self.clyde_killed = True
                             self.clyde_moving = False
                             # setup killable
                             self.score += 100
-                        elif self.clyde_previous_object == " ":
+                        elif self.clyde_previous_object == self.collision_dict["void"]:
                             self.clyde_killed = True
                             self.clyde_moving = False
                             # setup killable
@@ -796,16 +904,16 @@ class Game():
                     if self.killable_clyde == False:
                         self.done = True
                     elif self.killable_clyde == True:
-                        if self.clyde_previous_object == ".":
+                        if self.clyde_previous_object == self.collision_dict["point"]:
                             self.clyde_killed = True
                             self.clyde_moving = False
                             self.score += 10
-                        elif self.clyde_previous_object == "o":
+                        elif self.clyde_previous_object == self.collision_dict["fruit"]:
                             self.clyde_killed = True
                             self.clyde_moving = False
                             # setup killable
                             self.score += 100
-                        elif self.clyde_previous_object == " ":
+                        elif self.clyde_previous_object == self.collision_dict["void"]:
                             self.clyde_killed = True
                             self.clyde_moving = False
                             # setup killable
@@ -820,23 +928,23 @@ class Game():
                     self.clyde_moving = False
                     pass
                 elif self.move(self.clyde_state[0], self.clyde_state[1])[2] == self.collision_dict["wrap"]:
-                    self.clyde_previous_state = copy(direction_clyde)
-                    self.clyde_state = [10, 19]
+                    self.clyde_previous_state = copy(self.clyde_state)
+                    self.clyde_state = [10, 18]
                     self.clyde_moving = True
                 elif self.move(self.clyde_state[0], self.clyde_state[1])[2] == self.collision_dict["pacman"]:
                     if self.killable_clyde == False:
                         self.done = True
                     elif self.killable_clyde == True:
-                        if self.clyde_previous_object == ".":
+                        if self.clyde_previous_object == self.collision_dict["point"]:
                             self.clyde_killed = True
                             self.clyde_moving = False
                             self.score += 10
-                        elif self.clyde_previous_object == "o":
+                        elif self.clyde_previous_object == self.collision_dict["fruit"]:
                             self.clyde_killed = True
                             self.clyde_moving = False
                             # setup killable
                             self.score += 100
-                        elif self.clyde_previous_object == " ":
+                        elif self.clyde_previous_object == self.collision_dict["void"]:
                             self.clyde_killed = True
                             self.clyde_moving = False
                             # setup killable
@@ -851,23 +959,23 @@ class Game():
                     self.clyde_moving = False
                     pass
                 elif self.move(self.clyde_state[0], self.clyde_state[1])[3] == self.collision_dict["wrap"]:
-                    self.clyde_previous_state = copy(direction_clyde)
-                    self.clyde_state = [10, 1]
+                    self.clyde_previous_state = copy(self.clyde_state)
+                    self.clyde_state = [10, 2]
                     self.clyde_moving = True
                 elif self.move(self.clyde_state[0], self.clyde_state[1])[3] == self.collision_dict["pacman"]:
                     if self.killable_clyde == False:
                         self.done = True
                     elif self.killable_clyde == True:
-                        if self.clyde_previous_object == ".":
+                        if self.clyde_previous_object == self.collision_dict["point"]:
                             self.clyde_killed = True
                             self.clyde_moving = False
                             self.score += 10
-                        elif self.clyde_previous_object == "o":
+                        elif self.clyde_previous_object == self.collision_dict["fruit"]:
                             self.clyde_killed = True
                             self.clyde_moving = False
                             # setup killable
                             self.score += 100
-                        elif self.clyde_previous_object == " ":
+                        elif self.clyde_previous_object == self.collision_dict["void"]:
                             self.clyde_killed = True
                             self.clyde_moving = False
                             # setup killable
@@ -882,23 +990,23 @@ class Game():
     def update_clyde_position(self, direction_clyde):
         if self.clyde_killed == False:
             if self.clyde_state == [10, 2] and direction_clyde == 3:
-                self.board[self.clyde_previous_state[0]][self.clyde_previous_state[1]] = "["
-                self.board[self.clyde_state[0]][self.clyde_state[1]] = "&"
+                self.board[self.clyde_previous_state[0]][self.clyde_previous_state[1]] = self.board_ghost_check[self.clyde_previous_state[0]][self.clyde_previous_state[1]]
+                self.board[self.clyde_state[0]][self.clyde_state[1]] = self.ghost_list[3]
 
             elif self.clyde_state == [10, 18] and direction_clyde == 2:
-                self.board[self.clyde_previous_state[0]][self.clyde_previous_state[1]] = "]"
-                self.board[self.clyde_state[0]][self.clyde_state[1]] = "&"
+                self.board[self.clyde_previous_state[0]][self.clyde_previous_state[1]] = self.board_ghost_check[self.clyde_previous_state[0]][self.clyde_previous_state[1]]
+                self.board[self.clyde_state[0]][self.clyde_state[1]] = self.ghost_list[3]
 
             elif self.clyde_moving == False:
                 pass
 
             else:
                 self.board[self.clyde_previous_state[0]][self.clyde_previous_state[1]] = self.clyde_previous_object
-                self.board[self.clyde_state[0]][self.clyde_state[1]] = "&"
+                self.board[self.clyde_state[0]][self.clyde_state[1]] = self.ghost_list[3]
         elif self.clyde_killed == True:
-            if self.board[self.clyde_state[0]][self.clyde_state[1]] != "&":
+            if self.board[self.clyde_state[0]][self.clyde_state[1]] != self.ghost_list[3]:
                 pass
-            elif self.board[self.clyde_state[0]][self.clyde_state[1]] == "&":
+            elif self.board[self.clyde_state[0]][self.clyde_state[1]] == self.ghost_list[3]:
                 self.board[self.clyde_state[0]][self.clyde_state[1]] = self.clyde_previous_object
 
     """
@@ -911,12 +1019,18 @@ class Game():
         for i in self.board:
             print(*i, sep=' ')
 
+    def generate_ghost_board(self):
+        for i in self.board_ghost_check:
+            print(*i, sep=' ')
+
     def initialize_position(self):
         self.board[self.current_state[0]][self.current_state[1]] = "@"
         self.board[self.inky_state[0]][self.inky_state[1]] = "é"
         self.board[self.pinky_state[0]][self.pinky_state[1]] = "à"
         self.board[self.blinky_state[0]][self.blinky_state[1]] = "ç"
         self.board[self.clyde_state[0]][self.clyde_state[1]] = "&"
+
+
 
 
 if __name__ == '__main__':
