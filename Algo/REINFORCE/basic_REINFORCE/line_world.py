@@ -57,7 +57,6 @@ def REINFORCE(env, max_iter_count: int = 10000,
             a = np.random.choice(aa, p=probs)
 
             episode_actions_buffer.append(a)
-
             old_score = env.reward
             env.step(a)
             new_score = env.reward

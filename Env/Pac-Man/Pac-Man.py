@@ -22,22 +22,22 @@ class Game():
         self.previous_state = [15, 11]
 
         self.inky_state = [8, 10]  # [8, 10]
-        self.inky_previous_object = None
+        self.inky_previous_object = self.collision_dict["void"]
         self.killable_inky = False
         self.inky_killed = False
 
         self.blinky_state = [10, 9]
-        self.blinky_previous_object = None
+        self.blinky_previous_object = self.collision_dict["void"]
         self.killable_blinky = False
         self.blinky_killed = False
 
         self.pinky_state = [10, 10]
-        self.pinky_previous_object = None
+        self.pinky_previous_object = self.collision_dict["void"]
         self.killable_pinky = False
         self.pinky_killed = False
 
         self.clyde_state = [10, 11]
-        self.clyde_previous_object = None
+        self.clyde_previous_object = self.collision_dict["void"]
         self.killable_clyde = False
         self.clyde_killed = False
 
