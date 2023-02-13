@@ -5,8 +5,7 @@ import tensorflow as tf
 from tqdm import tqdm
 from Env.Grid_World.grid_world import GridWorld
 
-
-def REINFORCE_with_learned_baseline(env: GridWorld, max_iter_count: int = 10000,
+def REINFORCE_with_learned_baseline(env, max_iter_count: int = 10000,
                                     gamma: float = 0.99,
                                     alpha_pi: float = 0.01,
                                     alpha_v: float = 0.01):
@@ -78,7 +77,7 @@ def REINFORCE_with_learned_baseline(env: GridWorld, max_iter_count: int = 10000,
             episode_rewards_buffer.clear()
             step = 0
 
-        s = env.state_description()
+        s = np.array([env.currentIntState])
 
         episode_states_buffer.append(s)
 
@@ -87,7 +86,7 @@ def REINFORCE_with_learned_baseline(env: GridWorld, max_iter_count: int = 10000,
         pi_s = pi(np.array([s]))[0].numpy()
         allowed_pi_s = pi_s[aa]
         sum_allowed_pi_s = np.sum(allowed_pi_s)
-        if sum_allowed_pi_s == 0.0 or np.isnan(sum_allowed_pi_s):
+        if sum_allowed_pi_s == 0.0:
             probs = np.ones((len(aa),)) * 1.0 / (len(aa))
         else:
             probs = allowed_pi_s / sum_allowed_pi_s
@@ -107,7 +106,10 @@ def REINFORCE_with_learned_baseline(env: GridWorld, max_iter_count: int = 10000,
     return pi, v, ema_score_progress, ema_nb_steps_progress
 
 
-game = GridWorld()
-pi, v, scores, steps = REINFORCE_with_learned_baseline(game, max_iter_count=10000)
+game = GridWorld(taille = [10,10], position_start = [0, 1], good_end_position =[7,2], bad_end_position = [3, 8])
+pi, v, scores, steps= REINFORCE_with_learned_baseline(game, max_iter_count=10000)
 print(pi.weights)
-print(scores)
+plt.plot(scores)
+plt.show()
+plt.plot(steps)
+plt.show()
