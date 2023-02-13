@@ -14,7 +14,7 @@ class GridWorld:
         self.num_actions = 4  # Nombre total d'actions possibles (haut, bas, gauche, droite)
         self.reward = 0  # Récompense actuelle
         self.done = False  # Indique si la partie est terminée
-        #self.generate_grid()
+        self.generate_grid()
         self.actions = [0, 1, 2, 3]
         self.rewards = [0, 1, 3]
         self.actionSpace = {0: -self.grid_size[0], 1: self.grid_size[0],
@@ -51,13 +51,13 @@ class GridWorld:
                 self.current_state[0] = self.grid_size[0] - 1
                 self.currentIntState = self.getStateInt(self.current_state)
                 self.reward = 0  # Pas de récompense pour traverser le mur
-                #self.generate_grid()
+                self.generate_grid()
                 self.endgame()
             else:
                 self.current_state[0] = self.current_state[0] - 1
                 self.currentIntState = self.getStateInt(self.current_state)
                 self.reward = 0  # Pas de récompense pour avancer
-                #self.generate_grid()
+                self.generate_grid()
                 self.endgame()
 
         elif action == 1:
@@ -65,13 +65,13 @@ class GridWorld:
                 self.current_state[0] = 0
                 self.currentIntState = self.getStateInt(self.current_state)
                 self.reward = 0  # Pas de récompense pour avancer
-                #self.generate_grid()
+                self.generate_grid()
                 self.endgame()
             else:
                 self.current_state[0] = self.current_state[0] + 1
                 self.currentIntState = self.getStateInt(self.current_state)
                 self.reward = 0  # Pas de récompense pour avancer
-                #self.generate_grid()
+                self.generate_grid()
                 self.endgame()
 
         elif action == 2:
@@ -85,7 +85,7 @@ class GridWorld:
                 self.current_state[1] = self.current_state[1] - 1
                 self.currentIntState = self.getStateInt(self.current_state)
                 self.reward = 0  # Pas de récompense pour avancer
-                #self.generate_grid()
+                self.generate_grid()
                 self.endgame()
 
         elif action == 3:
@@ -94,13 +94,13 @@ class GridWorld:
                 self.currentIntState = self.getStateInt(self.current_state)
                 # print(self.current_state)
                 self.reward = 0  # Pas de récompense pour avancer
-                #self.generate_grid()
+                self.generate_grid()
                 self.endgame()
             else:
                 self.current_state[1] = self.current_state[1] + 1
                 self.currentIntState = self.getStateInt(self.current_state)
                 self.reward = 0  # Pas de récompense pour avancer
-                #self.generate_grid()
+                self.generate_grid()
                 self.endgame()
                 # Si l'on atteint l'état final, la partie est terminée
         return self.currentIntState, self.reward, self.done

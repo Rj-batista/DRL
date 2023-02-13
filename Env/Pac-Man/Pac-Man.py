@@ -54,7 +54,64 @@ class Game():
         self.fruit_collision = False
         self.initialize_position()
         self.generate_map()
+        self.actions = [0,1,2,3]
+        self.states = [[x, y] for x in range(len(self.board)) for y in range(len(self.board[0]))]
+        self.stateSpace = {}
+        self.matchStates()
+        self.currentIntState = self.getStateInt(self.current_state)
 
+    def reset(self):
+        self.current_state = [15, 11]  # État actuel (ligne, colonne)
+        self.previous_state = [15, 11]
+
+        self.inky_state = [8, 10]  # [8, 10]
+        self.inky_previous_object = None
+        self.killable_inky = False
+        self.inky_killed = False
+
+        self.blinky_state = [10, 9]
+        self.blinky_previous_object = None
+        self.killable_blinky = False
+        self.blinky_killed = False
+
+        self.pinky_state = [10, 10]
+        self.pinky_previous_object = None
+        self.killable_pinky = False
+        self.pinky_killed = False
+
+        self.clyde_state = [10, 11]
+        self.clyde_previous_object = None
+        self.killable_clyde = False
+        self.clyde_killed = False
+        self.currentIntState = self.getStateInt(self.current_state)
+        
+        self.score = 0  # 10*208 : . et 100*4 : o score totale
+        self.done = False  # Indique si la partie est terminée
+        self.compteur_first_step = 0
+        self.compteur_ghost = 0
+        self.fruit_collision = False
+        self.initialize_position()
+        self.board = board()
+        self.board_ghost_check = board()
+        self.generate_map()
+        
+       
+    def state_description(self):
+        return np.array([self.currentIntState / (len(self.states) - 1) * 2.0 - 1.0])
+    
+    def getStateInt(self, st):
+        return self.stateSpace[str(st)]
+    
+    def matchStates(self):
+        i = 0
+        for s in self.states:
+            self.stateSpace[str(s)] = i
+            i = i + 1
+            
+    def getStateCouple(self, st):
+        n_state = {i for i in self.stateSpace if self.stateSpace[i] == st}
+        return list(n_state)
+    
     def chose_next_move(self):
         if self.compteur_first_step <= 3:
             chose_inky = [2, 2, 0, 0]
@@ -796,7 +853,6 @@ class Game():
                 self.board[self.pinky_state[0]][self.pinky_state[1]] = self.pinky_previous_object
 
     """    
-
     ---------------------------------------------------------
     //CLYDE
     ---------------------------------------------------------
